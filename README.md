@@ -13,6 +13,8 @@
 ```text
 index.html              个人作品集
 xinji/                  心迹完整案例
+  brief.html            HR 版 2 页项目介绍
+  xinji-brief.pdf       HR 版 2 页 PDF
   xinji-case.pdf        案例 PDF
   xinji-onepager.pdf    一页速览
   prototype/            可点击原型
