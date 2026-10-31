@@ -1,0 +1,1992 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>心迹 TRACE · 情绪日记 可点击原型 v0.1</title>
+<style>
+/* ============ 01. tokens & reset ============ */
+:root{
+  --paper:#F3EDE1;
+  --paper-deep:#EAE1D1;
+  --card:#FBF7EE;
+  --ink:#211E19;
+  --ink-soft:#6A6357;
+  --ink-faint:#9A9183;
+  --line:rgba(33,30,25,.14);
+  --line-soft:rgba(33,30,25,.08);
+  --sage:#6E7C64;
+  --sage-deep:#46523F;
+  --clay:#B45B3C;
+  --amber:#C6953B;
+  --sky:#829C9C;
+  --rose:#C08A7C;
+  --night:#17150F;
+  --cream:#F6F0E4;
+  --s:1;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC",STSong,SimSun,serif;
+  --sans:"Noto Sans SC","Source Han Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"Cascadia Mono","SFMono-Regular",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--clay);outline-offset:3px}
+img,svg{display:block}
+::selection{background:rgba(180,91,60,.18)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ============ 02. page atmosphere ============ */
+.bg-contours{
+  position:fixed;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:.5;
+}
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+
+/* ============ 03. topbar ============ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:58px;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 34px;
+  border-bottom:1px solid var(--line-soft);
+  background:linear-gradient(to bottom,rgba(243,237,225,.94),rgba(243,237,225,.72));
+  backdrop-filter:blur(8px);
+}
+.topbar .mark{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:18px;letter-spacing:.06em}
+.topbar .mark i{width:7px;height:7px;border-radius:50%;background:var(--clay);display:block}
+.topbar .mark span{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--ink-faint);margin-left:2px}
+.topbar .right{display:flex;align-items:center;gap:18px}
+.topbar .hint{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-faint)}
+.reset{
+  border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+  font-size:11px;letter-spacing:.08em;color:var(--ink-soft);
+  transition:.2s;background:rgba(251,247,238,.5);
+}
+.reset:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+
+/* ============ 04. stage / intro ============ */
+.stage{
+  position:relative;z-index:2;
+  height:100vh;padding-top:58px;
+  display:grid;grid-template-columns:390px 1fr;
+}
+.intro{
+  padding:52px 20px 34px 52px;
+  display:flex;flex-direction:column;
+  min-height:0;
+}
+.kicker{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;
+  color:var(--ink-faint);text-transform:uppercase;margin-bottom:26px;
+}
+.intro h1{
+  font-family:var(--serif);font-weight:600;
+  font-size:58px;line-height:1.12;letter-spacing:.015em;
+  margin-bottom:20px;
+}
+.intro h1 em{font-style:normal;color:var(--clay)}
+.lede{font-size:13px;line-height:2;color:var(--ink-soft);max-width:280px}
+.lede b{font-weight:500;color:var(--ink)}
+.index{margin-top:34px;display:flex;flex-direction:column;gap:2px}
+.index button{
+  display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:12px;
+  padding:9px 0;text-align:left;border-bottom:1px solid var(--line-soft);
+  color:var(--ink-soft);transition:.2s;
+}
+.index button .n{font-family:var(--mono);font-size:9px;color:var(--ink-faint)}
+.index button .t{font-size:13px;letter-spacing:.04em}
+.index button .d{font-size:10px;color:var(--ink-faint);opacity:0;transform:translateX(-4px);transition:.2s}
+.index button:hover,.index button.active{color:var(--ink)}
+.index button:hover .d,.index button.active .d{opacity:1;transform:none}
+.index button.active .t{font-weight:600}
+.index button.active .n{color:var(--clay)}
+.intro-foot{
+  margin-top:auto;padding-top:26px;
+  font-size:10px;line-height:1.9;color:var(--ink-faint);
+  border-top:1px solid var(--line-soft);
+  max-width:280px;
+}
+.intro-foot b{font-weight:500;color:var(--ink-soft)}
+.vert{
+  position:fixed;left:18px;top:50%;transform:translateY(-50%) rotate(180deg);
+  writing-mode:vertical-rl;font-family:var(--mono);font-size:9px;
+  letter-spacing:.34em;color:var(--ink-faint);opacity:.65;z-index:2;
+}
+
+/* ============ 05. device frame ============ */
+.device-area{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  min-width:0;min-height:0;padding:18px 20px;
+}
+.device-area::before{
+  content:"";position:absolute;inset:8% 6% 6% 10%;
+  border:1px solid var(--line-soft);border-radius:50%;
+  opacity:.35;pointer-events:none;
+}
+.phone-wrap{
+  --s:1;
+  width:calc(412px * var(--s));
+  height:calc(868px * var(--s));
+  position:relative;flex:none;
+}
+.phone{
+  width:412px;height:868px;
+  transform:scale(var(--s));transform-origin:top left;
+  background:#12110E;border-radius:64px;padding:11px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12) inset,
+    0 2px 3px rgba(255,255,255,.18) inset,
+    0 50px 90px -30px rgba(41,32,20,.55),
+    0 20px 40px -20px rgba(41,32,20,.35);
+  position:relative;
+}
+.phone::before,.phone::after{
+  content:"";position:absolute;width:3px;border-radius:3px;background:#2A2823;
+}
+.phone::before{left:-3px;top:180px;height:74px;box-shadow:0 96px 0 #2A2823,0 -56px 0 #2A2823}
+.phone::after{right:-3px;top:214px;height:110px}
+.screen{
+  position:relative;width:390px;height:846px;border-radius:54px;overflow:hidden;overflow:clip;
+  background:var(--paper);isolation:isolate;
+}
+.screen::after{
+  content:"";position:absolute;inset:0;border-radius:54px;pointer-events:none;z-index:150;
+  box-shadow:0 0 30px rgba(0,0,0,.22) inset;
+}
+
+/* ============ 06. app primitives ============ */
+.status-bar{
+  position:absolute;top:0;left:0;right:0;height:48px;z-index:120;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;pointer-events:none;
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  color:var(--ink);
+  background:linear-gradient(to bottom,rgba(243,237,225,.97) 0%,rgba(243,237,225,.93) 58%,rgba(243,237,225,0) 100%);
+  transition:color .3s,background .3s;
+}
+#app.dark-ui .status-bar{
+  color:var(--cream);
+  background:linear-gradient(to bottom,rgba(23,21,15,.98) 0%,rgba(23,21,15,.94) 58%,rgba(23,21,15,0) 100%);
+}
+.status-right{display:flex;align-items:center;gap:5px}
+.status-right svg{width:15px;height:11px;stroke:currentColor;fill:none;stroke-width:1.4}
+.island{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:112px;height:30px;border-radius:20px;background:#050505;z-index:130;
+}
+.island::after{content:"";position:absolute;right:12px;top:9px;width:7px;height:7px;border-radius:50%;background:#151515;box-shadow:0 0 0 1px #242424 inset}
+.home-indicator{
+  position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  width:128px;height:4px;border-radius:4px;background:var(--ink);opacity:.8;z-index:70;pointer-events:none;
+}
+#app.dark-ui .status-bar{color:var(--cream)}
+#app.dark-ui .home-indicator{background:var(--cream);opacity:.55}
+
+.page{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;transform:translateY(10px) scale(.995);
+  transition:opacity .3s ease,transform .34s cubic-bezier(.22,.8,.24,1),visibility .34s;
+  z-index:2;background:var(--paper);
+}
+.page.active{opacity:1;visibility:visible;transform:none;z-index:3}
+.page.under{transform:translateY(-6px) scale(.99)}
+.screen-body{
+  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:58px 22px 118px;scrollbar-width:none;
+}
+.screen-body::-webkit-scrollbar{display:none}
+#app.hide-tabs .screen-body{padding-bottom:36px}
+#app.hide-tabs .home-indicator{opacity:.25}
+
+.eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--ink-faint);text-transform:uppercase}
+.serif{font-family:var(--serif)}
+.label{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tiny{font-size:10px;color:var(--ink-faint)}
+.sub{font-size:12px;color:var(--ink-soft);line-height:1.7}
+.dot{display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--ink-faint);vertical-align:middle;margin:0 6px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border-radius:999px;padding:11px 20px;font-size:12.5px;letter-spacing:.04em;
+  transition:transform .18s,background .2s,color .2s,border-color .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--ink);color:var(--cream);border:1px solid var(--ink)}
+.btn.primary:hover{background:#000}
+.btn.ghost{border:1px solid var(--line);color:var(--ink-soft);background:rgba(251,247,238,.6)}
+.btn.ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn.wide{width:100%;padding:14px 20px;font-size:13px}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink-soft);background:rgba(251,247,238,.5);
+  transition:.2s;
+}
+.icon-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.icon-btn svg{width:16px;height:16px}
+.text-btn{font-size:11px;color:var(--ink-soft);letter-spacing:.05em}
+.text-btn:hover{color:var(--clay)}
+
+.screen-head{
+  height:52px;flex:none;display:grid;grid-template-columns:40px 1fr 56px;
+  align-items:center;padding:0 18px;gap:8px;margin-top:48px;
+}
+.screen-head .head-title{text-align:center;font-size:12px;letter-spacing:.16em;color:var(--ink-soft)}
+.screen-head .text-btn{text-align:right}
+
+/* ============ 07. tab bar ============ */
+.tabbar{
+  position:absolute;left:0;right:0;bottom:0;height:80px;z-index:50;
+  display:grid;grid-template-columns:repeat(5,1fr);
+  align-items:start;padding-top:9px;
+  background:linear-gradient(to top,rgba(243,237,225,.99) 58%,rgba(243,237,225,.88));
+  border-top:1px solid var(--line-soft);
+  backdrop-filter:blur(14px);
+  transition:transform .3s,opacity .3s;
+}
+#app.hide-tabs .tabbar{transform:translateY(100%);opacity:0;pointer-events:none}
+.tab{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  color:var(--ink-faint);font-size:9px;letter-spacing:.1em;padding-top:4px;
+  transition:color .2s;
+}
+.tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tab.active{color:var(--ink)}
+.tab.active svg{stroke-width:1.8}
+.tab.center{position:relative;margin-top:-10px}
+.tab.center .plus{
+  width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--cream);
+  display:grid;place-items:center;margin-top:-20px;
+  box-shadow:0 8px 18px -8px rgba(33,30,25,.55);
+  transition:transform .2s;
+}
+.tab.center .plus svg{width:19px;height:19px;stroke-width:1.8}
+.tab.center:active .plus{transform:scale(.94)}
+.tab.center span{margin-top:-1px}
+
+/* ============ 08. home ============ */
+.home{padding-top:58px}
+.home-head{padding:10px 0 18px}
+.home-head .eyebrow{margin-bottom:10px}
+.home-head h2{font-family:var(--serif);font-size:31px;font-weight:600;line-height:1.2;letter-spacing:.01em}
+.home-head .sub{margin-top:7px;font-size:11.5px;color:var(--ink-soft)}
+.weather-panel{
+  position:relative;border:1px solid var(--line);border-radius:22px;
+  background:linear-gradient(160deg,rgba(251,247,238,.95),rgba(246,239,226,.75));
+  padding:14px 14px 12px;overflow:hidden;
+}
+.weather-panel .contour-mini{position:absolute;right:-16px;top:-26px;width:150px;height:130px;opacity:.35;pointer-events:none}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative}
+.panel-head .tiny{font-size:9.5px}
+.mood-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;position:relative}
+.mood{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:10px 0 8px;border-radius:14px;border:1px solid transparent;
+  color:var(--ink-soft);transition:.22s;position:relative;
+}
+.mood svg{width:31px;height:31px;stroke:currentColor;fill:none;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+.mood span{font-size:9px;letter-spacing:.06em}
+.mood:hover{background:rgba(33,30,25,.045);color:var(--ink)}
+.mood.selected{background:var(--ink);color:var(--cream);border-color:var(--ink);transform:translateY(-2px)}
+.quick-note{
+  margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);
+  font-size:10.5px;color:var(--ink-faint);line-height:1.6;
+}
+.quick-note b{color:var(--clay);font-weight:500}
+
+.rec-card{
+  margin-top:14px;border:1px solid var(--line);border-radius:22px;
+  background:var(--card);padding:16px 17px 15px;position:relative;overflow:hidden;
+}
+.rec-card::after{
+  content:"";position:absolute;right:-34px;bottom:-44px;width:120px;height:120px;
+  border:1px solid var(--line);border-radius:50%;box-shadow:0 0 0 14px rgba(33,30,25,.025),0 0 0 28px rgba(33,30,25,.018);
+  pointer-events:none;
+}
+.rec-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rec-top .meta{font-family:var(--mono);font-size:9px;color:var(--ink-faint);letter-spacing:.08em}
+.rec-card h3{font-family:var(--serif);font-size:21px;font-weight:600;margin-bottom:5px;letter-spacing:.01em}
+.rec-card p{font-size:11.5px;color:var(--ink-soft);line-height:1.65;max-width:260px}
+.rec-actions{display:flex;gap:8px;margin-top:13px;position:relative;z-index:1}
+.rec-actions .btn{padding:8px 16px;font-size:11px}
+
+.insight-strip{
+  width:100%;margin-top:14px;border:1px solid var(--line);border-radius:18px;
+  padding:13px 15px;text-align:left;position:relative;background:rgba(251,247,238,.55);
+  transition:.2s;
+}
+.insight-strip:hover{background:var(--card);border-color:rgba(33,30,25,.24)}
+.insight-strip .row1{display:flex;align-items:baseline;gap:10px;padding-right:24px}
+.insight-strip .label{margin-right:auto}
+.insight-strip strong{font-family:var(--serif);font-size:17px;font-weight:600}
+.insight-strip .delta{font-family:var(--mono);font-size:10px;color:var(--sage-deep)}
+.insight-strip p{font-size:10.5px;color:var(--ink-soft);margin-top:6px;padding-right:16px}
+.insight-strip .arrow{position:absolute;right:14px;top:16px;font-family:var(--mono);font-size:14px;color:var(--ink-faint)}
+.spark{position:absolute;right:14px;bottom:14px;width:64px;height:22px;opacity:.65}
+.spark svg{width:64px;height:22px;stroke:var(--sage-deep);fill:none;stroke-width:1.2}
+
+.crisis-link{
+  width:100%;margin:16px 0 4px;padding:13px;border-radius:16px;
+  border:1px dashed rgba(180,91,60,.38);color:var(--clay);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:11.5px;letter-spacing:.06em;transition:.2s;
+}
+.crisis-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4}
+.crisis-link:hover{background:rgba(180,91,60,.06);border-style:solid}
+.daily-line{margin:18px 2px 0;padding:14px 0 0;border-top:1px solid var(--line-soft)}
+.daily-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.daily-line blockquote{font-family:var(--serif);font-size:13.5px;line-height:1.85;color:var(--ink-soft);letter-spacing:.01em}
+.daily-line figcaption{font-family:var(--mono);font-size:8px;color:var(--ink-faint);margin-top:6px;letter-spacing:.1em}
+
+/* ============ 09. record ============ */
+.record-body{padding-top:6px;padding-bottom:128px}
+.record-body .big{font-size:34px;line-height:1.28;margin-bottom:6px}
+.record-body .sub{margin-bottom:20px}
+.emotion-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.emotion-card{
+  border:1px solid var(--line);border-radius:15px;background:rgba(251,247,238,.55);
+  padding:11px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:var(--ink-soft);transition:.2s;
+}
+.emotion-card svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.emotion-card span{font-size:10px;letter-spacing:.06em}
+.emotion-card:hover{border-color:rgba(33,30,25,.3);color:var(--ink)}
+.emotion-card.selected{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.field{margin-top:22px}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.field-head>span:first-child{font-size:11px;letter-spacing:.1em;color:var(--ink-soft)}
+.segments{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.seg{
+  height:34px;border:1px solid var(--line);border-radius:9px;
+  display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);
+  transition:.18s;background:rgba(251,247,238,.4);
+}
+.seg:hover{border-color:var(--ink-soft);color:var(--ink)}
+.seg.selected{background:var(--ink);border-color:var(--ink);color:var(--cream)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  border:1px solid var(--line);border-radius:999px;padding:6px 12px;
+  font-size:10.5px;color:var(--ink-soft);transition:.18s;background:rgba(251,247,238,.4);
+}
+.tag:hover{border-color:var(--ink-soft);color:var(--ink)}
+.tag.selected{background:rgba(110,124,100,.14);border-color:rgba(70,82,63,.5);color:var(--sage-deep)}
+textarea{
+  width:100%;border:0;border-bottom:1px solid var(--line);
+  background:transparent;resize:none;font:13px/1.8 var(--sans);color:var(--ink);
+  padding:8px 0 12px;outline:none;min-height:78px;
+}
+textarea::placeholder{color:var(--ink-faint)}
+textarea:focus{border-bottom-color:var(--ink)}
+.voice-row{display:flex;align-items:center;gap:9px;margin-top:10px;color:var(--ink-faint);font-size:10px}
+.mic{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--ink-soft);transition:.2s;flex:none;
+}
+.mic svg{width:14px;height:14px}
+.mic:hover{background:var(--ink);color:var(--cream)}
+.mic.recording{background:var(--clay);border-color:var(--clay);color:#fff;animation:pulse 1.2s infinite}
+.wave{display:flex;align-items:center;gap:2px;height:14px;opacity:0;transition:.2s}
+.wave.on{opacity:1}
+.wave i{width:2px;height:4px;background:var(--clay);border-radius:2px;animation:wave 900ms ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.1s}.wave i:nth-child(3){animation-delay:.2s}
+.wave i:nth-child(4){animation-delay:.3s}.wave i:nth-child(5){animation-delay:.4s}
+.record-footer{
+  position:absolute;left:0;right:0;bottom:0;padding:12px 22px 26px;z-index:10;
+  background:linear-gradient(to top,var(--paper) 62%,rgba(243,237,225,.85) 84%,transparent);
+}
+.record-footer .btn{box-shadow:0 10px 24px -14px rgba(33,30,25,.6)}
+
+/* ============ 10. reflect ============ */
+.reflect{padding-top:64px;display:flex;flex-direction:column}
+.reflect .eyebrow{margin-bottom:16px}
+.reflect .big{font-size:38px;line-height:1.2;margin-bottom:18px}
+.quote-card{
+  border:1px solid var(--line);border-radius:22px;background:var(--card);
+  padding:20px 19px 16px;position:relative;overflow:hidden;
+}
+.quote-mark{
+  font-family:var(--serif);font-size:54px;line-height:1;color:rgba(180,91,60,.28);
+  position:absolute;top:2px;left:13px;
+}
+.quote-card p{font-family:var(--serif);font-size:17px;line-height:1.85;position:relative;z-index:1;margin:10px 0 16px}
+.chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:12px}
+.chips span{font-size:9px;color:var(--ink-faint);letter-spacing:.1em;margin-right:2px}
+.chips b{font-weight:400;font-size:10px;padding:3px 8px;border-radius:999px;background:rgba(110,124,100,.12);color:var(--sage-deep)}
+.suggest-card{
+  display:flex;gap:13px;align-items:center;border:1px solid var(--line);border-radius:18px;
+  padding:13px 14px;margin-top:14px;background:rgba(251,247,238,.6);
+}
+.suggest-card .icon{
+  width:42px;height:42px;border-radius:50%;background:rgba(180,91,60,.1);
+  display:grid;place-items:center;flex:none;color:var(--clay);
+}
+.suggest-card .icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.4}
+.suggest-card h3{font-family:var(--serif);font-size:15px;font-weight:600;margin:2px 0 2px}
+.suggest-card p{font-size:10px;color:var(--ink-faint);line-height:1.5}
+.reflect .btn.wide{margin-top:14px}
+.center{text-align:center;align-self:center;margin-top:14px}
+
+/* ============ 11. insights ============ */
+.insights-head{display:flex;justify-content:space-between;align-items:flex-end;padding:8px 0 16px}
+.insights-head h2{font-family:var(--serif);font-size:28px;font-weight:600}
+.insights-head .sub{margin-top:4px;font-size:10px}
+.segment-control{display:flex;border:1px solid var(--line);border-radius:999px;padding:2px;margin-bottom:14px}
+.segment-control button{flex:1;padding:6px 0;border-radius:999px;font-size:10px;color:var(--ink-faint);letter-spacing:.1em;transition:.2s}
+.segment-control button.on{background:var(--ink);color:var(--cream)}
+.summary-card{
+  border:1px solid var(--line);border-radius:22px;background:var(--card);
+  padding:17px 17px 10px;position:relative;overflow:hidden;
+}
+.summary-top{display:flex;align-items:baseline;gap:10px}
+.summary-top .big-num{font-family:var(--serif);font-size:44px;line-height:1;font-weight:600}
+.summary-top .of{font-family:var(--mono);font-size:10px;color:var(--ink-faint)}
+.summary-top .delta{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--sage-deep);background:rgba(110,124,100,.12);padding:3px 8px;border-radius:999px}
+.summary-card .cap{font-size:10px;color:var(--ink-faint);margin-top:6px}
+.mood-chart{width:100%;height:118px;margin-top:4px;overflow:visible}
+.chart-x{display:grid;grid-template-columns:repeat(7,1fr);font-family:var(--mono);font-size:8px;color:var(--ink-faint);text-align:center;margin-top:2px}
+
+.factor-card{
+  margin-top:13px;border:1px solid var(--line);border-radius:22px;background:var(--card);
+  padding:16px 17px 15px;
+}
+.factor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.tag-ink{font-size:9px;letter-spacing:.12em;color:var(--clay);border:1px solid rgba(180,91,60,.3);border-radius:999px;padding:3px 9px}
+.conf{font-family:var(--mono);font-size:8.5px;color:var(--ink-faint)}
+.factor-card h3{font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.5;margin-bottom:12px}
+.evidence{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:12px;overflow:hidden}
+.evidence>div{background:var(--card);padding:9px 8px}
+.evidence span{display:block;font-size:8.5px;color:var(--ink-faint);letter-spacing:.06em}
+.evidence b{display:block;font-family:var(--serif);font-size:17px;font-weight:600;margin:3px 0 1px}
+.evidence i{display:block;font-style:normal;font-size:8px;color:var(--ink-soft);line-height:1.4}
+.caveat{font-size:9.5px;line-height:1.65;color:var(--ink-faint);margin-top:10px}
+.factor-actions{display:flex;gap:8px;margin-top:12px}
+.factor-actions button{font-size:10px;color:var(--ink-soft);border-bottom:1px solid var(--line);padding:2px 0}
+.factor-actions button:hover{color:var(--clay);border-color:var(--clay)}
+.factor-actions button:last-child{margin-left:auto;color:var(--ink);border-color:var(--ink)}
+
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin:20px 0 9px}
+.section-head h3{font-family:var(--serif);font-size:15px;font-weight:600}
+.section-head span{font-size:9px;color:var(--ink-faint)}
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.ledger-col{border:1px solid var(--line);border-radius:16px;padding:11px 11px 9px;background:rgba(251,247,238,.55)}
+.ledger-col .label{margin-bottom:8px;display:block}
+.ledger-row{display:grid;grid-template-columns:1fr auto;gap:4px 6px;margin-bottom:8px}
+.ledger-row span{font-size:9.5px;color:var(--ink-soft)}
+.ledger-row b{font-family:var(--mono);font-size:9px;font-weight:400;color:var(--ink-faint)}
+.ledger-bar{grid-column:1/-1;height:2px;background:var(--line-soft);border-radius:2px;overflow:hidden}
+.ledger-bar i{display:block;height:100%;border-radius:2px}
+.ledger-col.drain .ledger-bar i{background:var(--clay);opacity:.6}
+.ledger-col.charge .ledger-bar i{background:var(--sage);opacity:.8}
+
+.experiment{
+  margin-top:10px;border:1px solid var(--line);border-radius:18px;padding:13px 14px;
+  background:rgba(251,247,238,.55);
+}
+.experiment h3{font-family:var(--serif);font-size:14px;font-weight:600;margin:2px 0 10px}
+.progress{height:3px;border-radius:3px;background:var(--line-soft);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--sage-deep);border-radius:3px}
+.experiment .meta{font-family:var(--mono);font-size:8.5px;color:var(--ink-faint);margin-top:7px;display:flex;justify-content:space-between}
+
+.heat-card{margin-top:10px;border:1px solid var(--line);border-radius:16px;padding:12px;background:rgba(251,247,238,.55)}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.heat i{aspect-ratio:1;border-radius:3px;background:rgba(33,30,25,.05)}
+.heat i.l1{background:rgba(180,91,60,.16)}
+.heat i.l2{background:rgba(180,91,60,.32)}
+.heat i.l3{background:rgba(180,91,60,.52)}
+.heat i.l4{background:rgba(180,91,60,.78)}
+.heat-legend{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:7px;font-size:8px;color:var(--ink-faint)}
+.heat-legend i{width:8px;height:8px;border-radius:2px;display:block}
+
+/* ============ 12. toolbox ============ */
+.toolbox-head{padding:8px 0 14px}
+.toolbox-head h2{font-family:var(--serif);font-size:28px;font-weight:600}
+.toolbox-head .sub{margin-top:4px;font-size:10.5px}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:0 0 8px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter-chip{
+  flex:none;border:1px solid var(--line);border-radius:999px;padding:6px 11px;
+  font-size:9.5px;color:var(--ink-soft);transition:.18s;background:rgba(251,247,238,.4);
+}
+.filter-chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.filter-label{font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:var(--ink-faint);margin:3px 0 6px}
+.feature{
+  width:100%;margin-top:12px;border-radius:22px;padding:18px 17px;
+  background:linear-gradient(145deg,#1E1C16,#17150F);color:var(--cream);
+  display:flex;align-items:center;gap:14px;text-align:left;position:relative;overflow:hidden;
+}
+.feature .label{color:rgba(246,240,228,.45)}
+.feature h3{font-family:var(--serif);font-size:21px;font-weight:600;margin:2px 0 2px}
+.feature p{font-size:10px;color:rgba(246,240,228,.6)}
+.feature-orb{width:70px;height:70px;position:relative;flex:none;display:grid;place-items:center}
+.feature-orb i{position:absolute;border:1px solid rgba(246,240,228,.22);border-radius:50%;animation:breathe 6s ease-in-out infinite}
+.feature-orb i:nth-child(1){width:70px;height:70px}
+.feature-orb i:nth-child(2){width:50px;height:50px;animation-delay:-2s}
+.feature-orb span{width:26px;height:26px;border-radius:50%;background:rgba(198,149,59,.85);box-shadow:0 0 22px rgba(198,149,59,.45)}
+.feature .go{position:absolute;right:15px;bottom:13px;font-family:var(--mono);font-size:9px;color:rgba(246,240,228,.5)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.tool-card{
+  border:1px solid var(--line);border-radius:17px;background:rgba(251,247,238,.6);
+  padding:12px 12px 11px;text-align:left;display:flex;flex-direction:column;gap:7px;
+  min-height:112px;transition:.2s;position:relative;
+}
+.tool-card:hover{background:var(--card);border-color:rgba(33,30,25,.26);transform:translateY(-1px)}
+.tool-card .ico{width:28px;height:28px;color:var(--sage-deep)}
+.tool-card .ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
+.tool-card h4{font-family:var(--serif);font-size:14px;font-weight:600;line-height:1.4}
+.tool-card .meta{font-family:var(--mono);font-size:8px;color:var(--ink-faint);letter-spacing:.04em;margin-top:auto}
+.tool-card .why{font-size:8.5px;color:var(--ink-faint);line-height:1.5}
+.empty{grid-column:1/-1;padding:30px 0;text-align:center;font-size:11px;color:var(--ink-faint)}
+
+/* ============ 13. profile ============ */
+.profile-head{padding:8px 0 16px}
+.profile-head .eyebrow{margin-bottom:8px}
+.profile-head h2{font-family:var(--serif);font-size:28px;font-weight:600}
+.stat-card{
+  border:1px solid var(--line);border-radius:20px;padding:15px;
+  background:linear-gradient(150deg,var(--card),rgba(234,225,209,.6));
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.stat-card div{border-right:1px solid var(--line-soft)}
+.stat-card div:last-child{border:0}
+.stat-card b{display:block;font-family:var(--serif);font-size:23px;font-weight:600;line-height:1.1}
+.stat-card span{font-size:9px;color:var(--ink-faint)}
+.settings{margin-top:14px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(251,247,238,.5)}
+.setting{
+  width:100%;display:flex;align-items:center;gap:11px;padding:13px 14px;
+  border-bottom:1px solid var(--line-soft);text-align:left;transition:.15s;
+}
+.setting:last-child{border:0}
+.setting:hover{background:rgba(33,30,25,.03)}
+.setting .sico{width:26px;height:26px;border-radius:7px;background:rgba(33,30,25,.05);display:grid;place-items:center;flex:none;color:var(--ink-soft)}
+.setting .sico svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.4}
+.setting .st{flex:1;min-width:0}
+.setting .st b{display:block;font-size:11.5px;font-weight:500}
+.setting .st span{display:block;font-size:9px;color:var(--ink-faint);margin-top:1px}
+.switch{width:34px;height:20px;border-radius:20px;background:rgba(33,30,25,.14);position:relative;transition:.2s;flex:none}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--card);transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch.on{background:var(--sage-deep)}
+.switch.on::after{transform:translateX(14px)}
+.setting .chev{color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+.member-card{
+  margin-top:14px;border-radius:20px;padding:16px;background:var(--ink);color:var(--cream);
+  position:relative;overflow:hidden;
+}
+.member-card .label{color:rgba(246,240,228,.45)}
+.member-card h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:3px 0 3px}
+.member-card p{font-size:9.5px;color:rgba(246,240,228,.55)}
+.member-card .btn{position:absolute;right:14px;bottom:14px;background:var(--cream);color:var(--ink);padding:7px 13px;font-size:10px}
+.disclaimer{font-size:8.5px;line-height:1.8;color:var(--ink-faint);margin-top:16px;padding:0 2px}
+
+/* ============ 14. overlays ============ */
+.overlay{
+  position:absolute;inset:0;z-index:100;opacity:0;visibility:hidden;
+  transition:opacity .28s,visibility .28s;
+}
+.overlay.open{opacity:1;visibility:visible}
+.overlay .scrim{position:absolute;inset:0;background:rgba(23,21,15,.34);backdrop-filter:blur(3px)}
+.sheet-full{
+  position:absolute;inset:0;background:var(--paper);display:flex;flex-direction:column;
+  transform:translateY(14px);transition:transform .34s cubic-bezier(.22,.8,.24,1);
+}
+.overlay.open .sheet-full{transform:none}
+
+/* breathe */
+.breathe-screen{background:var(--night);color:var(--cream);align-items:center;padding:58px 24px 34px}
+.breathe-top{width:100%;display:flex;justify-content:space-between;align-items:center}
+.breathe-top .close-dark{width:34px;height:34px;border-radius:50%;border:1px solid rgba(246,240,228,.18);display:grid;place-items:center;color:rgba(246,240,228,.8)}
+.breathe-top .close-dark svg{width:15px;height:15px}
+.breathe-title{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:rgba(246,240,228,.45);text-transform:uppercase;margin-top:34px}
+.breathe-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+.orb-wrap{position:relative;width:250px;height:250px;display:grid;place-items:center;margin-bottom:30px}
+.orb-ring{position:absolute;border-radius:50%;border:1px solid rgba(246,240,228,.1)}
+.orb-ring.r1{width:250px;height:250px}
+.orb-ring.r2{width:204px;height:204px}
+.orb-ring.r3{width:158px;height:158px}
+.orb{
+  width:118px;height:118px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,rgba(246,240,228,.95),rgba(214,196,164,.55) 60%,rgba(198,149,59,.28));
+  box-shadow:0 0 60px rgba(198,149,59,.22),0 0 110px rgba(198,149,59,.1);
+  transform:scale(.62);
+  transition:transform var(--dur,4s) cubic-bezier(.4,0,.3,1);
+}
+.orb-wrap.inhale .orb{transform:scale(1);transition-duration:4s}
+.orb-wrap.hold .orb{transform:scale(1);transition-duration:.4s}
+.orb-wrap.exhale .orb{transform:scale(.62);transition-duration:8s}
+.phase-label{font-family:var(--serif);font-size:27px;letter-spacing:.28em;margin-left:.28em}
+.phase-count{font-family:var(--mono);font-size:11px;color:rgba(246,240,228,.45);margin-top:8px;letter-spacing:.1em}
+.breathe-bottom{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.cycle-dots{display:flex;gap:6px}
+.cycle-dots i{width:5px;height:5px;border-radius:50%;background:rgba(246,240,228,.18)}
+.cycle-dots i.on{background:var(--amber)}
+.breathe-total{font-family:var(--mono);font-size:9.5px;color:rgba(246,240,228,.35);letter-spacing:.12em}
+.breathe-done{position:absolute;inset:0;background:var(--night);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.breathe-done.show{display:flex}
+.breathe-done h3{font-family:var(--serif);font-size:30px;font-weight:500;margin-bottom:8px}
+.breathe-done p{font-size:11px;color:rgba(246,240,228,.5);margin-bottom:22px}
+.mood-check{display:flex;gap:8px;margin-bottom:20px}
+.mood-check button{border:1px solid rgba(246,240,228,.2);border-radius:999px;padding:8px 14px;font-size:10px;color:rgba(246,240,228,.75)}
+.mood-check button:hover{background:rgba(246,240,228,.08)}
+
+/* player */
+.player-screen{background:var(--night);color:var(--cream);align-items:center;padding:58px 24px 30px}
+.player-orb{width:168px;height:168px;border-radius:50%;margin:36px 0 28px;position:relative;display:grid;place-items:center}
+.player-orb::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(246,240,228,.14);animation:breathe 8s ease-in-out infinite}
+.player-orb::after{content:"";position:absolute;inset:26px;border-radius:50%;border:1px solid rgba(246,240,228,.09)}
+.player-orb span{width:44px;height:44px;border-radius:50%;background:rgba(198,149,59,.8);box-shadow:0 0 40px rgba(198,149,59,.3)}
+.player-title{font-family:var(--serif);font-size:26px;font-weight:500;text-align:center;margin-top:4px}
+.player-sub{font-size:10px;color:rgba(246,240,228,.45);margin-top:6px;text-align:center}
+.player-time{font-family:var(--mono);font-size:30px;letter-spacing:.08em;margin:26px 0 10px}
+.player-bar{width:100%;height:2px;background:rgba(246,240,228,.14);border-radius:2px;overflow:hidden}
+.player-bar i{display:block;height:100%;width:0;background:var(--amber);transition:width 1s linear}
+.player-instruction{font-size:10.5px;line-height:1.8;color:rgba(246,240,228,.5);text-align:center;max-width:280px;margin-top:18px}
+.player-actions{display:flex;align-items:center;gap:18px;margin-top:auto}
+.play-btn{width:52px;height:52px;border-radius:50%;background:var(--cream);color:var(--ink);display:grid;place-items:center}
+.play-btn svg{width:18px;height:18px}
+.player-actions .text-light{font-size:10px;color:rgba(246,240,228,.5);letter-spacing:.08em}
+
+/* sheet */
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;max-height:82%;overflow-y:auto;
+  background:var(--paper);border-radius:26px 26px 0 0;padding:10px 22px 30px;
+  transform:translateY(100%);transition:transform .38s cubic-bezier(.22,.8,.24,1);
+  scrollbar-width:none;
+}
+.overlay.open .sheet{transform:none}
+.sheet::-webkit-scrollbar{display:none}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 18px}
+.sheet h3{font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:6px}
+.sheet .lead{font-size:11px;color:var(--ink-soft);line-height:1.75;margin-bottom:14px}
+.calc-table{border-top:1px solid var(--line);margin:4px 0 14px}
+.calc-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:10.5px}
+.calc-row span{color:var(--ink-soft)}
+.calc-row b{font-family:var(--mono);font-weight:400;font-size:10px;text-align:right}
+.formula{font-family:var(--mono);font-size:8.5px;line-height:1.9;background:rgba(33,30,25,.045);border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px;color:var(--ink-soft);margin-bottom:12px;overflow-x:auto}
+.sheet .note{font-size:9px;line-height:1.7;color:var(--ink-faint)}
+.sheet .btn.wide{margin-top:14px}
+
+/* crisis */
+.crisis-screen{background:linear-gradient(170deg,#F7F0E2,#EFE5D3);padding:58px 24px 28px;overflow-y:auto}
+.crisis-top{display:flex;justify-content:space-between;align-items:center}
+.crisis-top .eyebrow{color:var(--clay)}
+.crisis-screen h2{font-family:var(--serif);font-size:32px;line-height:1.45;font-weight:600;margin:30px 0 12px;letter-spacing:.01em}
+.crisis-screen .lead{font-size:11.5px;line-height:1.9;color:var(--ink-soft);margin-bottom:20px;max-width:300px}
+.crisis-orb{width:72px;height:72px;border-radius:50%;border:1px solid rgba(180,91,60,.35);display:grid;place-items:center;margin:6px 0 24px;position:relative}
+.crisis-orb::before{content:"";position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(180,91,60,.2)}
+.crisis-orb span{width:22px;height:22px;border-radius:50%;background:rgba(180,91,60,.5);animation:pulse 3s infinite}
+.crisis-actions{display:flex;flex-direction:column;gap:8px}
+.crisis-action{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);
+  border-radius:15px;background:rgba(251,247,238,.65);text-align:left;transition:.2s;
+}
+.crisis-action:hover{background:var(--card);border-color:rgba(33,30,25,.28)}
+.crisis-action .ci{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(180,91,60,.1);color:var(--clay);flex:none}
+.crisis-action .ci svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5}
+.crisis-action b{display:block;font-size:12px;font-weight:500}
+.crisis-action span{display:block;font-size:9px;color:var(--ink-faint);margin-top:1px}
+.crisis-action .go{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+.crisis-screen details{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.crisis-screen summary{font-size:10.5px;color:var(--ink-soft);cursor:pointer;list-style:none}
+.crisis-screen summary::-webkit-details-marker{display:none}
+.crisis-screen summary::before{content:"＋";font-family:var(--mono);margin-right:6px;color:var(--clay)}
+.crisis-screen details[open] summary::before{content:"－"}
+.plan-list{list-style:none;margin-top:10px;font-size:10px;line-height:1.9;color:var(--ink-soft)}
+.plan-list li{padding-left:14px;position:relative}
+.plan-list li::before{content:"";position:absolute;left:0;top:9px;width:4px;height:4px;border-radius:50%;background:var(--clay);opacity:.6}
+.crisis-foot{margin-top:auto;padding-top:20px;font-size:8.5px;line-height:1.75;color:var(--ink-faint)}
+.crisis-exit{align-self:center;margin-top:14px;font-size:10px;color:var(--ink-faint);text-decoration:underline;text-underline-offset:4px}
+
+/* write */
+.write-screen{padding:58px 24px 26px;display:flex;flex-direction:column}
+.write-screen h3{font-family:var(--serif);font-size:26px;font-weight:600;margin:22px 0 6px}
+.write-screen .prompt{font-size:11px;line-height:1.9;color:var(--ink-soft);margin-bottom:20px}
+.write-screen textarea{flex:1;border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(251,247,238,.6);min-height:220px;font-size:13px}
+.write-screen .btn{margin-top:14px}
+
+/* toast */
+.toast{
+  position:absolute;left:50%;top:60px;transform:translate(-50%,-8px);
+  background:rgba(23,21,15,.92);color:var(--cream);backdrop-filter:blur(8px);
+  padding:9px 16px;border-radius:999px;font-size:10.5px;letter-spacing:.03em;
+  z-index:300;opacity:0;visibility:hidden;transition:.24s;white-space:nowrap;max-width:86%;
+  pointer-events:none;
+}
+.toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
+/* ============ 15. motion ============ */
+@keyframes breathe{0%,100%{transform:scale(.9);opacity:.5}50%{transform:scale(1.08);opacity:1}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(180,91,60,.25)}50%{box-shadow:0 0 0 8px rgba(180,91,60,0)}}
+@keyframes wave{0%,100%{height:4px}50%{height:13px}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.shake{animation:shake .36s}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page.active .screen-body > *{animation:rise .45s both}
+.page.active .screen-body > *:nth-child(2){animation-delay:.04s}
+.page.active .screen-body > *:nth-child(3){animation-delay:.08s}
+.page.active .screen-body > *:nth-child(4){animation-delay:.12s}
+.page.active .screen-body > *:nth-child(5){animation-delay:.16s}
+.page.active .screen-body > *:nth-child(6){animation-delay:.2s}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* ============ 16. responsive ============ */
+@media (max-width:980px){
+  .stage{grid-template-columns:1fr}
+  .intro,.vert{display:none}
+  .device-area{padding:8px}
+  .topbar{padding:0 18px}
+  .topbar .hint{display:none}
+}
+@media (max-width:520px){
+  .topbar{height:48px}
+  .stage{padding-top:48px}
+  .topbar .mark span{display:none}
+  .reset{padding:6px 11px}
+}
+</style>
+</head>
+<body>
+
+<svg class="bg-contours" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g fill="none" stroke="#211E19" stroke-width="1" opacity=".12">
+    <path d="M-80 640C120 560 250 700 430 640S760 520 940 590s330 60 560-30"/>
+    <path d="M-80 690C120 610 250 750 430 690S760 570 940 640s330 60 560-30"/>
+    <path d="M-80 740C120 660 250 800 430 740S760 620 940 690s330 60 560-30"/>
+    <path d="M980 -40c40 120 130 160 250 150s230 30 280 120"/>
+    <path d="M1030 -40c40 120 130 160 250 150s230 30 280 120"/>
+    <path d="M1080 -40c40 120 130 160 250 150s230 30 280 120"/>
+    <ellipse cx="1180" cy="760" rx="260" ry="150"/>
+    <ellipse cx="1180" cy="760" rx="210" ry="118"/>
+    <ellipse cx="1180" cy="760" rx="160" ry="86"/>
+  </g>
+</svg>
+<div class="grain" aria-hidden="true"></div>
+<div class="vert" aria-hidden="true">MOOD · WEATHER · CARE · 2026</div>
+
+<header class="topbar">
+  <div class="mark"><i></i>心迹<span>TRACE</span></div>
+  <div class="right">
+    <span class="hint">CLICKABLE PROTOTYPE · v0.1</span>
+    <button class="reset" onclick="location.reload()">重置演示</button>
+  </div>
+</header>
+
+<main class="stage">
+  <aside class="intro">
+    <div class="kicker">PRODUCT PROTOTYPE / 001</div>
+    <h1>情绪<br>有迹<em>可循</em>。</h1>
+    <p class="lede">3 秒记下天气，读懂心里的气压；<b>在需要的时候，做一件小的事。</b></p>
+
+    <nav class="index" aria-label="页面索引">
+      <button data-screen="home" class="active"><span class="n">01</span><span class="t">今天</span><span class="d">一键记录</span></button>
+      <button data-screen="record"><span class="n">02</span><span class="t">记录</span><span class="d">说不清也没关系</span></button>
+      <button data-screen="insights"><span class="n">03</span><span class="t">洞察</span><span class="d">证据，不是结论</span></button>
+      <button data-screen="toolbox"><span class="n">04</span><span class="t">疗愈</span><span class="d">1 / 5 / 15 分钟</span></button>
+      <button data-screen="crisis"><span class="n">05</span><span class="t">情绪急救</span><span class="d">先接住，再办法</span></button>
+    </nav>
+
+    <div class="intro-foot">
+      <b>怎么玩：</b>点手机里的任意元素。<br>
+      首页点一个天气，就是一次记录；<br>
+      洞察里的「这是怎么算的」有完整口径。<br><br>
+      演示数据 · 不构成医疗建议
+    </div>
+  </aside>
+
+  <section class="device-area">
+    <div class="phone-wrap" id="phoneWrap">
+      <div class="phone" id="phone">
+        <div class="screen" id="app">
+
+          <div class="status-bar">
+            <span class="mono">21:26</span>
+            <span class="status-right">
+              <svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10V8M5 10V6M9 10V4M13 10V2"/></svg>
+              <svg viewBox="0 0 16 12" aria-hidden="true"><path d="M2 5.5a8 8 0 0 1 12 0M4.5 8a5 5 0 0 1 7 0M7 10.4a1.6 1.6 0 0 1 2 0"/></svg>
+              <svg viewBox="0 0 18 12" aria-hidden="true"><rect x="1" y="2" width="13" height="8" rx="2"/><path d="M15 5v2"/><rect x="3" y="4" width="9" height="4" rx="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+          </div>
+          <div class="island" aria-hidden="true"></div>
+
+          <!-- ========== ONBOARD ========== -->
+          <section class="page active" id="s-onboard" data-page="onboard">
+            <div class="screen-body" style="padding:78px 28px 34px;display:flex;flex-direction:column">
+              <div class="eyebrow" style="margin-bottom:26px">心迹 · TRACE</div>
+              <h2 class="serif" style="font-size:42px;line-height:1.3;font-weight:600;letter-spacing:.01em">今天，<br>心里是什么<br>天气？</h2>
+              <p class="sub" style="margin-top:16px;max-width:280px">不用写作文，也不用想清楚。<br>点一下，就算数。</p>
+
+              <svg viewBox="0 0 300 120" style="width:100%;height:120px;margin:26px 0 8px" aria-hidden="true">
+                <path d="M4 92c36-2 44-38 72-36s34 30 60 28 38-34 66-32 34 22 56 20 30-10 38-12" fill="none" stroke="#B45B3C" stroke-width="1.2" opacity=".55"/>
+                <path d="M4 104c40-2 52-30 78-28s30 24 58 22 40-28 68-26 32 18 54 16 28-8 34-10" fill="none" stroke="#211E19" stroke-width="1" opacity=".18"/>
+                <circle cx="76" cy="56" r="3.2" fill="#B45B3C" opacity=".7"/>
+                <circle cx="196" cy="60" r="2.2" fill="#211E19" opacity=".35"/>
+              </svg>
+
+              <div style="margin-top:auto">
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-soft)"><span class="mono" style="color:var(--clay);font-size:9px">01</span>3 秒记录，不打断此刻</div>
+                  <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-soft)"><span class="mono" style="color:var(--clay);font-size:9px">02</span>只给你有证据的洞察</div>
+                  <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-soft)"><span class="mono" style="color:var(--clay);font-size:9px">03</span>难受时，先接住你</div>
+                </div>
+                <button class="btn primary wide" data-action="start">开始</button>
+                <button class="text-btn" style="display:block;margin:13px auto 0" data-action="start">先随便看看</button>
+                <p style="font-size:8.5px;line-height:1.7;color:var(--ink-faint);text-align:center;margin-top:18px">心迹不是医疗机构，不提供诊断或治疗。<br>继续即表示你已阅读并同意服务条款与隐私政策。</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========== HOME ========== -->
+          <section class="page" id="s-home" data-page="home">
+            <div class="screen-body home">
+              <header class="home-head">
+                <div class="eyebrow">FRI · 30 OCT</div>
+                <h2>晚上好。</h2>
+                <p class="sub">北京 · 多云 18°<span class="dot"></span>今天过得怎么样？</p>
+              </header>
+
+              <div class="weather-panel">
+                <svg class="contour-mini" viewBox="0 0 150 130" aria-hidden="true">
+                  <g fill="none" stroke="#211E19" stroke-width="1" opacity=".5">
+                    <ellipse cx="86" cy="58" rx="64" ry="42"/>
+                    <ellipse cx="86" cy="58" rx="48" ry="31"/>
+                    <ellipse cx="86" cy="58" rx="32" ry="20"/>
+                    <path d="M-6 96c28-8 42 6 66 0s38-16 62-8 24 12 34 8"/>
+                  </g>
+                </svg>
+                <div class="panel-head"><span class="label">此刻 · 天气</span><span class="tiny">点一下就算记录</span></div>
+                <div class="mood-row" id="moodRow">
+                  <button class="mood" data-mood="很低" data-val="1" aria-label="情绪很低">
+                    <svg viewBox="0 0 24 24"><path d="M6 15a4 4 0 0 1 .6-7.95A5.5 5.5 0 0 1 17.2 8.5 3.8 3.8 0 0 1 18 16H6z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></svg>
+                    <span>很低</span>
+                  </button>
+                  <button class="mood" data-mood="低" data-val="2" aria-label="情绪偏低">
+                    <svg viewBox="0 0 24 24"><path d="M6 15a4 4 0 0 1 .6-7.95A5.5 5.5 0 0 1 17.2 8.5 3.8 3.8 0 0 1 18 16H6z"/><path d="M8.5 18.5l-.6 2M15.5 18.5l-.6 2"/></svg>
+                    <span>低</span>
+                  </button>
+                  <button class="mood" data-mood="一般" data-val="3" aria-label="情绪一般">
+                    <svg viewBox="0 0 24 24"><path d="M6 16a4 4 0 0 1 .6-7.95A5.5 5.5 0 0 1 17.2 9.5 3.8 3.8 0 0 1 18 17H6z"/></svg>
+                    <span>一般</span>
+                  </button>
+                  <button class="mood" data-mood="好" data-val="4" aria-label="情绪不错">
+                    <svg viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3.2"/><path d="M8.5 2.5v1.4M8.5 13.1v1.4M2.5 8.5h1.4M13.1 8.5h1.4M4.3 4.3l1 1M11.7 11.7l1 1M12.7 4.3l-1 1M5.3 11.7l-1 1"/><path d="M10 18.5a4 4 0 0 1 .5-7.4 5 5 0 0 1 9.4 1.2 3.4 3.4 0 0 1 .1 6.2H10z"/></svg>
+                    <span>好</span>
+                  </button>
+                  <button class="mood" data-mood="很好" data-val="5" aria-label="情绪很好">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
+                    <span>很好</span>
+                  </button>
+                </div>
+                <div class="quick-note" id="quickNote">不用写作文。选一个最接近的就好。</div>
+              </div>
+
+              <div class="rec-card" id="recCard">
+                <div class="rec-top"><span class="label">此刻推荐</span><span class="meta" id="recMeta">3 分钟 · 睡前</span></div>
+                <h3 id="recTitle">4-7-8 呼吸</h3>
+                <p id="recReason">因为你最近在 23 点后更容易焦虑。</p>
+                <div class="rec-actions">
+                  <button class="btn primary" id="recStart">开始</button>
+                  <button class="btn ghost" id="recNext">换一个</button>
+                </div>
+              </div>
+
+              <article class="insight-strip" data-go="insights" tabindex="0" role="button" aria-label="查看本周洞察">
+                <div class="row1">
+                  <span class="label">本周</span>
+                  <strong>焦虑 42%</strong>
+                  <span class="delta">↓ 8%</span>
+                </div>
+                <p>发现：加班日情绪偏低的可能性接近 2 倍</p>
+                <span class="arrow">→</span>
+                <span class="spark">
+                  <svg viewBox="0 0 64 22"><path d="M1 16c8-1 10-9 17-8s8 7 14 6 8-9 15-8 9 5 16 4" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+                </span>
+              </article>
+
+              <figure class="daily-line">
+                <div class="daily-head"><span class="label">今日一句</span><span class="tiny">01 / 30</span></div>
+                <blockquote>“当我接受自己原本的样子时，我才能改变。”</blockquote>
+                <figcaption>卡尔·罗杰斯</figcaption>
+              </figure>
+
+              <button class="crisis-link" data-action="crisis">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                我现在很难受
+              </button>
+            </div>
+          </section>
+
+          <!-- ========== RECORD ========== -->
+          <section class="page" id="s-record" data-page="record">
+            <div class="screen-head">
+              <button class="icon-btn" data-go="home" aria-label="返回">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg>
+              </button>
+              <span class="head-title">记录</span>
+              <button class="text-btn" data-action="draft">存草稿</button>
+            </div>
+            <div class="screen-body record-body">
+              <h2 class="serif big">现在感觉<br>如何？</h2>
+              <p class="sub">不用准确，最接近的就行。</p>
+
+              <div class="emotion-grid" id="emotionGrid">
+                <button class="emotion-card" data-emotion="喜悦" data-hint="轻盈、明亮"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg><span>喜悦</span></button>
+                <button class="emotion-card" data-emotion="平静" data-hint="松弛、安稳"><svg viewBox="0 0 24 24"><path d="M3 9c3-2 6 2 9 0s6 2 9 0M3 14c3-2 6 2 9 0s6 2 9 0M3 19c3-2 6 2 9 0s6 2 9 0"/></svg><span>平静</span></button>
+                <button class="emotion-card" data-emotion="焦虑" data-hint="紧绷、停不下来"><svg viewBox="0 0 24 24"><path d="M12 12c0-2 2-3 3.4-2.1s1.4 3.4-.6 4.4-4.6.4-5.6-1.6.2-5 2.7-5.9 5.9.6 6.7 3.4"/></svg><span>焦虑</span></button>
+                <button class="emotion-card" data-emotion="愤怒" data-hint="被冒犯、想反击"><svg viewBox="0 0 24 24"><path d="M12 3c2 4 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"/></svg><span>愤怒</span></button>
+                <button class="emotion-card" data-emotion="悲伤" data-hint="失落、想哭"><svg viewBox="0 0 24 24"><path d="M6 14a4 4 0 0 1 .6-7.95A5.5 5.5 0 0 1 17.2 7.5 3.8 3.8 0 0 1 18 15H6z"/><path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/></svg><span>悲伤</span></button>
+                <button class="emotion-card" data-emotion="疲惫" data-hint="没力气、空"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><span>疲惫</span></button>
+                <button class="emotion-card" data-emotion="羞耻" data-hint="自责、不够好"><svg viewBox="0 0 24 24"><path d="M4 10c0-3 3.6-5 8-5s8 2 8 5v4c0 3-3.6 5-8 5s-8-2-8-5v-4z"/><path d="M8.5 10.5h.01M15.5 10.5h.01M9.5 15c1.6-1 3.4-1 5 0"/></svg><span>羞耻</span></button>
+                <button class="emotion-card" data-emotion="混杂" data-hint="说不清、矛盾"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></svg><span>混杂</span></button>
+              </div>
+
+              <div class="field">
+                <div class="field-head"><span>强度</span><span class="mono" id="intensityLabel" style="font-size:10px;color:var(--ink-faint)">3 / 5</span></div>
+                <div class="segments" id="intensity">
+                  <button class="seg" data-i="1">1</button>
+                  <button class="seg" data-i="2">2</button>
+                  <button class="seg selected" data-i="3">3</button>
+                  <button class="seg" data-i="4">4</button>
+                  <button class="seg" data-i="5">5</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-head"><span>发生了什么</span><span class="tiny">可多选</span></div>
+                <div class="tags" id="recordTags">
+                  <button class="tag">加班</button>
+                  <button class="tag">没睡好</button>
+                  <button class="tag">被否定</button>
+                  <button class="tag">汇报</button>
+                  <button class="tag">独处</button>
+                  <button class="tag">运动</button>
+                  <button class="tag">社交</button>
+                  <button class="tag">生理期</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-head"><span>想说什么</span><span class="tiny">可以不说</span></div>
+                <textarea id="note" rows="3" placeholder="……"></textarea>
+                <div class="voice-row">
+                  <button class="mic" id="mic" aria-label="语音输入">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>
+                  </button>
+                  <span id="micLabel">按住说话</span>
+                  <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="record-footer">
+              <button class="btn primary wide" id="saveEntry">保存这次记录</button>
+            </div>
+          </section>
+
+          <!-- ========== REFLECT ========== -->
+          <section class="page" id="s-reflect" data-page="reflect">
+            <div class="screen-body reflect">
+              <div class="eyebrow" id="reflectMeta">10月30日 · 21:26 · 已保存</div>
+              <h2 class="serif big">记下了。</h2>
+
+              <div class="quote-card">
+                <span class="quote-mark">“</span>
+                <p id="reflectText">明天要汇报，难怪绷着。先别急着解决，要不要先松一下肩膀？</p>
+                <div class="chips">
+                  <span>你可能需要</span>
+                  <b>被看见</b><b>掌控</b>
+                </div>
+              </div>
+
+              <div class="suggest-card">
+                <div class="icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 3c2 4 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"/></svg>
+                </div>
+                <div>
+                  <span class="label">给此刻的你</span>
+                  <h3>3 分钟 · 4-7-8 呼吸</h3>
+                  <p>延长呼气，让身体先慢下来。</p>
+                </div>
+              </div>
+
+              <button class="btn primary wide" data-action="breathe">开始 3 分钟呼吸</button>
+              <button class="text-btn center" data-go="home">回到今天</button>
+            </div>
+          </section>
+
+          <!-- ========== INSIGHTS ========== -->
+          <section class="page" id="s-insights" data-page="insights">
+            <div class="screen-body">
+              <header class="insights-head">
+                <div>
+                  <h2>洞察</h2>
+                  <p class="sub">最近 7 天 · 10.24 — 10.30</p>
+                </div>
+                <span class="label">WEEK 44</span>
+              </header>
+
+              <div class="segment-control" role="tablist">
+                <button class="on" data-seg="week">周</button>
+                <button data-seg="month">月</button>
+              </div>
+
+              <div class="summary-card">
+                <div class="summary-top">
+                  <span class="big-num" id="avgNum">5.8</span>
+                  <span class="of">/ 10</span>
+                  <span class="delta">↑ 0.6</span>
+                </div>
+                <p class="cap">情绪均值 · 7 天 7 次记录</p>
+                <svg class="mood-chart" id="moodChart" viewBox="0 0 320 118" aria-label="最近七天情绪曲线">
+                  <defs>
+                    <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="#B45B3C" stop-opacity=".18"/>
+                      <stop offset="1" stop-color="#B45B3C" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <g stroke="#211E19" stroke-opacity=".08" stroke-width="1">
+                    <line x1="0" y1="26" x2="320" y2="26"/>
+                    <line x1="0" y1="62" x2="320" y2="62"/>
+                    <line x1="0" y1="98" x2="320" y2="98"/>
+                  </g>
+                  <path id="chartArea" fill="url(#chartFill)" d=""></path>
+                  <path id="chartLine" fill="none" stroke="#B45B3C" stroke-width="1.8" stroke-linecap="round" d=""></path>
+                  <g id="chartDots"></g>
+                </svg>
+                <div class="chart-x"><span>六</span><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span></div>
+              </div>
+
+              <article class="factor-card">
+                <div class="factor-head"><span class="tag-ink">一个发现</span><span class="conf">中等确定</span></div>
+                <h3>「加班」和更低的情绪<br>一起出现</h3>
+                <div class="evidence">
+                  <div><span>有加班</span><b>12 天</b><i>9 天偏低</i></div>
+                  <div><span>无加班</span><b>21 天</b><i>8 天偏低</i></div>
+                  <div><span>概率</span><b>≈ 1.8×</b><i>95% CI 1.2–2.9</i></div>
+                </div>
+                <p class="caveat">这是关联，不是因果。样本仍偏少，先当作一个值得留意的线索，而不是结论。</p>
+                <div class="factor-actions">
+                  <button data-action="explain">这是怎么算的</button>
+                  <button data-action="experiment" id="expBtn">加入实验</button>
+                </div>
+              </article>
+
+              <div class="section-head"><h3>情绪账本</h3><span>谁在消耗，谁在充电</span></div>
+              <div class="ledger">
+                <div class="ledger-col drain">
+                  <span class="label">消耗</span>
+                  <div class="ledger-row"><span>加班</span><b>9</b><div class="ledger-bar"><i style="width:100%"></i></div></div>
+                  <div class="ledger-row"><span>睡眠不足</span><b>7</b><div class="ledger-bar"><i style="width:78%"></i></div></div>
+                  <div class="ledger-row"><span>社交</span><b>4</b><div class="ledger-bar"><i style="width:44%"></i></div></div>
+                </div>
+                <div class="ledger-col charge">
+                  <span class="label">充电</span>
+                  <div class="ledger-row"><span>运动</span><b>6</b><div class="ledger-bar"><i style="width:86%"></i></div></div>
+                  <div class="ledger-row"><span>散步</span><b>4</b><div class="ledger-bar"><i style="width:58%"></i></div></div>
+                  <div class="ledger-row"><span>朋友</span><b>3</b><div class="ledger-bar"><i style="width:42%"></i></div></div>
+                </div>
+              </div>
+
+              <div class="experiment">
+                <span class="label">进行中的实验</span>
+                <h3>加班日 · 睡前 3 分钟呼吸</h3>
+                <div class="progress"><i style="width:42%"></i></div>
+                <div class="meta"><span>6 / 14 天</span><span>还差 8 天</span></div>
+              </div>
+
+              <div class="section-head"><h3>情绪日历</h3><span>10 月</span></div>
+              <div class="heat-card">
+                <div class="heat" id="heat" aria-hidden="true"></div>
+                <div class="heat-legend">低 <i style="background:rgba(33,30,25,.05)"></i><i style="background:rgba(180,91,60,.16)"></i><i style="background:rgba(180,91,60,.32)"></i><i style="background:rgba(180,91,60,.52)"></i><i style="background:rgba(180,91,60,.78)"></i> 高</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========== TOOLBOX ========== -->
+          <section class="page" id="s-toolbox" data-page="toolbox">
+            <div class="screen-body">
+              <header class="toolbox-head">
+                <h2>疗愈</h2>
+                <p class="sub">先选“我现在是什么状态”，再选“我有几分钟”。</p>
+              </header>
+
+              <div class="filter-label">我现在</div>
+              <div class="filters" id="energyFilters">
+                <button class="filter-chip on" data-energy="all">都可以</button>
+                <button class="filter-chip" data-energy="low">没力气</button>
+                <button class="filter-chip" data-energy="medium">一般</button>
+                <button class="filter-chip" data-energy="high">有精力</button>
+              </div>
+              <div class="filter-label">我有</div>
+              <div class="filters" id="timeFilters">
+                <button class="filter-chip on" data-time="all">不限</button>
+                <button class="filter-chip" data-time="1">1 分钟</button>
+                <button class="filter-chip" data-time="5">5 分钟</button>
+                <button class="filter-chip" data-time="15">15 分钟</button>
+              </div>
+
+              <button class="feature" data-action="breathe">
+                <div class="feature-orb"><i></i><i></i><span></span></div>
+                <div>
+                  <span class="label">随时 · 1 分钟</span>
+                  <h3>4-7-8 呼吸</h3>
+                  <p>让呼气比吸气更长。</p>
+                </div>
+                <span class="go">START →</span>
+              </button>
+
+              <div class="cards" id="toolCards">
+                <button class="tool-card" data-mode="audio" data-title="身体扫描" data-min="5" data-energy="low" data-time="5" data-instruction="从脚趾开始，慢慢把注意力移到头顶。走神也没关系，发现了就回来。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 17c3-1 5-5 8-5s5 4 8 3M4 12c3-1 5-5 8-5s5 4 8 3"/><circle cx="12" cy="20" r="1.4"/></svg></span>
+                  <h4>身体扫描</h4>
+                  <p class="why">把注意力从脑子放回身体</p>
+                  <span class="meta">5 分钟 · 睡前</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="渐亮歌单" data-min="8" data-energy="medium" data-time="15" data-instruction="先听和你此刻相近的节奏，再让它慢慢亮起来。不用努力开心。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></span>
+                  <h4>渐亮歌单</h4>
+                  <p class="why">先同频，再慢慢变亮</p>
+                  <span class="meta">8 分钟 · 通勤</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="桌边伸展" data-min="1" data-energy="medium" data-time="1" data-instruction="肩膀向后绕 5 次，手臂举过头顶，慢慢呼气。别屏住呼吸。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.5v6M12 9l-5 3M12 9l5 3M12 13.5l-3 7M12 13.5l3 7"/></svg></span>
+                  <h4>桌边伸展</h4>
+                  <p class="why">坐太久，身体先僵住了</p>
+                  <span class="meta">1 分钟 · 工位</span>
+                </button>
+                <button class="tool-card" data-mode="write" data-title="三句话" data-min="3" data-energy="low" data-time="5" data-prompt="发生了什么？我当时的想法是什么？我现在需要什么？" data-instruction="不用写得好，写给自己看。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h6M8 18h4"/></svg></span>
+                  <h4>三句话</h4>
+                  <p class="why">把模糊的难受说清楚一点</p>
+                  <span class="meta">3 分钟 · 任何地方</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="冷水洗脸" data-min="1" data-energy="low" data-time="1" data-instruction="用凉水洗 30 秒，注意水流过皮肤的感觉。只做这一件事。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3s5 6 5 10a5 5 0 0 1-10 0c0-4 5-10 5-10z"/></svg></span>
+                  <h4>冷水洗脸</h4>
+                  <p class="why">强烈情绪里，先降一点温</p>
+                  <span class="meta">30 秒 · 洗手间</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="给朋友发条消息" data-min="1" data-energy="medium" data-time="1" data-instruction="不用解释太多，发一句「在吗」也算。连接不需要表演。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg></span>
+                  <h4>发条消息</h4>
+                  <p class="why">孤独时，先做一个小连接</p>
+                  <span class="meta">1 分钟 · 任何地方</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="慈心冥想" data-min="6" data-energy="low" data-time="5" data-instruction="先对自己说：愿我平安。再试着对一个你在意的人说。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/></svg></span>
+                  <h4>慈心冥想</h4>
+                  <p class="why">对自己，也说句好话</p>
+                  <span class="meta">6 分钟 · 睡前</span>
+                </button>
+                <button class="tool-card" data-mode="audio" data-title="5-4-3-2-1 着陆" data-min="3" data-energy="low" data-time="5" data-instruction="说出 5 样你看得见的东西，4 样摸得到的，3 种听得到的，2 种闻得到的，1 种尝得到的。">
+                  <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></span>
+                  <h4>5-4-3-2-1</h4>
+                  <p class="why">思绪跑太远时，回到这里</p>
+                  <span class="meta">3 分钟 · 任何地方</span>
+                </button>
+              </div>
+
+              <div class="section-head"><h3>我的急救包</h3><span>3 个最有用</span></div>
+              <div class="filters">
+                <button class="filter-chip" data-action="breathe">4-7-8 呼吸</button>
+                <button class="filter-chip" data-action="breathe">冷水洗脸</button>
+                <button class="filter-chip" data-title="给朋友发条消息" data-mode="audio" data-min="1" data-instruction="不用解释太多，发一句「在吗」也算。">发条消息</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========== PROFILE ========== -->
+          <section class="page" id="s-profile" data-page="profile">
+            <div class="screen-body">
+              <header class="profile-head">
+                <div class="eyebrow">MY TRACE</div>
+                <h2>我的</h2>
+              </header>
+
+              <div class="stat-card">
+                <div><b>47</b><span>已记录天数</span></div>
+                <div><b>3</b><span>本周记录</span></div>
+                <div><b>12</b><span>最长连续</span></div>
+              </div>
+
+              <div class="settings">
+                <button class="setting" data-toggle>
+                  <span class="sico"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+                  <span class="st"><b>应用锁</b><span>Face ID / 独立密码</span></span>
+                  <span class="switch on" aria-hidden="true"></span>
+                </button>
+                <button class="setting" data-toggle>
+                  <span class="sico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 7.4-7 9-4-1.6-7-4.6-7-9V6z"/></svg></span>
+                  <span class="st"><b>本地模式</b><span>记录只留在这台设备</span></span>
+                  <span class="switch on" aria-hidden="true"></span>
+                </button>
+                <button class="setting" data-toggle>
+                  <span class="sico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span>
+                  <span class="st"><b>云端分析</b><span>关闭后不使用 AI 反思</span></span>
+                  <span class="switch" aria-hidden="true"></span>
+                </button>
+                <button class="setting" data-action="plan">
+                  <span class="sico"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span>
+                  <span class="st"><b>安全计划</b><span>已设置 · 3 位联系人</span></span>
+                  <span class="chev">›</span>
+                </button>
+                <button class="setting" data-action="export">
+                  <span class="sico"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></span>
+                  <span class="st"><b>导出数据</b><span>JSON / Markdown</span></span>
+                  <span class="chev">›</span>
+                </button>
+                <button class="setting" data-action="crisis">
+                  <span class="sico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>
+                  <span class="st"><b>危机资源</b><span>12356 · 当地心理援助</span></span>
+                  <span class="chev">›</span>
+                </button>
+              </div>
+
+              <div class="member-card">
+                <span class="label">心迹 PLUS</span>
+                <h3>把所有痕迹，留给自己</h3>
+                <p>完整历史 · 全部练习 · 情绪实验</p>
+                <button class="btn" data-action="join">了解</button>
+              </div>
+
+              <p class="disclaimer">心迹是一款情绪自助工具，不是医疗机构，不提供诊断、治疗或急救服务。如果你或身边的人正处于危险中，请立即拨打 120 / 110，或联系当地精神卫生机构。<br><br>版本 0.1 · 演示数据</p>
+            </div>
+          </section>
+
+          <!-- ========== TAB BAR ========== -->
+          <nav class="tabbar" aria-label="主导航">
+            <button class="tab active" data-go="home">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
+              <span>今天</span>
+            </button>
+            <button class="tab" data-go="insights">
+              <svg viewBox="0 0 24 24"><path d="M4 18V9M9 18V5M14 18v-6M19 18v-9"/></svg>
+              <span>洞察</span>
+            </button>
+            <button class="tab center" data-go="record" aria-label="记录">
+              <span class="plus"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+              <span>记录</span>
+            </button>
+            <button class="tab" data-go="toolbox">
+              <svg viewBox="0 0 24 24"><path d="M4 16c4-1 6-7 9-7s4 5 7 4M4 10c4-1 6-7 9-7s4 5 7 4"/></svg>
+              <span>疗愈</span>
+            </button>
+            <button class="tab" data-go="profile">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-4 3.4-6 7-6s6.4 2 7 6"/></svg>
+              <span>我的</span>
+            </button>
+          </nav>
+
+          <!-- ========== BREATHE OVERLAY ========== -->
+          <div class="overlay" id="ov-breathe" role="dialog" aria-modal="true" aria-label="4-7-8 呼吸">
+            <div class="sheet-full breathe-screen">
+              <div class="breathe-top">
+                <button class="close-dark" data-close="breathe" aria-label="关闭">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+                <span class="label" style="color:rgba(246,240,228,.4)">4-7-8 BREATHING</span>
+                <span style="width:34px"></span>
+              </div>
+              <div class="breathe-title">吸气 4 · 屏住 7 · 呼气 8</div>
+              <div class="breathe-stage">
+                <div class="orb-wrap inhale" id="orbWrap">
+                  <span class="orb-ring r1"></span><span class="orb-ring r2"></span><span class="orb-ring r3"></span>
+                  <span class="orb"></span>
+                </div>
+                <div class="phase-label" id="phaseLabel">吸气</div>
+                <div class="phase-count" id="phaseCount">4</div>
+              </div>
+              <div class="breathe-bottom">
+                <div class="cycle-dots" id="cycleDots"><i class="on"></i><i></i><i></i></div>
+                <div class="breathe-total" id="breatheTotal">还剩 00:57 · 第 1 / 3 轮</div>
+                <button class="text-btn" style="color:rgba(246,240,228,.45)" data-close="breathe">结束</button>
+              </div>
+              <div class="breathe-done" id="breatheDone">
+                <h3>做完了。</h3>
+                <p>感觉有变化吗？不用有。</p>
+                <div class="mood-check">
+                  <button data-check="好一点">好一点</button>
+                  <button data-check="差不多">差不多</button>
+                  <button data-check="更糟了">更糟了</button>
+                </div>
+                <button class="btn" style="background:var(--cream);color:var(--ink);padding:10px 22px;font-size:11px" data-close="breathe">回到今天</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========== PLAYER OVERLAY ========== -->
+          <div class="overlay" id="ov-player" role="dialog" aria-modal="true" aria-label="练习">
+            <div class="sheet-full player-screen">
+              <div class="breathe-top" style="width:100%">
+                <button class="close-dark" data-close="player" aria-label="关闭">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+                <span class="label" id="playerType" style="color:rgba(246,240,228,.4)">音频引导</span>
+                <span style="width:34px"></span>
+              </div>
+              <div class="player-orb"><span></span></div>
+              <div class="player-title" id="playerTitle">身体扫描</div>
+              <div class="player-sub" id="playerSub">5 分钟 · 睡前</div>
+              <div class="player-time" id="playerTime">05:00</div>
+              <div class="player-bar"><i id="playerBar"></i></div>
+              <p class="player-instruction" id="playerInstruction">从脚趾开始，慢慢把注意力移到头顶。</p>
+              <div class="player-actions">
+                <button class="text-light" data-close="player">结束</button>
+                <button class="play-btn" id="playBtn" aria-label="暂停">
+                  <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                </button>
+                <button class="text-light" data-action="finishPlayer">完成</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========== CRISIS OVERLAY ========== -->
+          <div class="overlay" id="ov-crisis" role="dialog" aria-modal="true" aria-label="情绪急救">
+            <div class="sheet-full crisis-screen">
+              <div class="crisis-top">
+                <span class="eyebrow">你不需要一个人扛</span>
+                <button class="icon-btn" data-close="crisis" aria-label="关闭" style="border-color:rgba(180,91,60,.25)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+              </div>
+              <h2>你现在很难受，<br>不用一个人扛。</h2>
+              <p class="lead">先不急着分析，也不急着好起来。选一个现在最能做到的。</p>
+              <div class="crisis-orb"><span></span></div>
+              <div class="crisis-actions">
+                <button class="crisis-action" data-action="call">
+                  <span class="ci"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+                  <span><b>拨打 12356</b><span>全国心理援助热线 · 匿名</span></span>
+                  <span class="go">›</span>
+                </button>
+                <button class="crisis-action" data-action="contact">
+                  <span class="ci"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c.6-4 3.4-6 7-6s6.4 2 7 6"/></svg></span>
+                  <span><b>联系妈妈</b><span>紧急联系人 · 已预设</span></span>
+                  <span class="go">›</span>
+                </button>
+                <button class="crisis-action" data-action="ground">
+                  <span class="ci"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></span>
+                  <span><b>先做 60 秒着陆</b><span>5-4-3-2-1 · 把注意力放回周围</span></span>
+                  <span class="go">›</span>
+                </button>
+              </div>
+
+              <details>
+                <summary>看看我的安全计划</summary>
+                <ul class="plan-list">
+                  <li>预警信号：连续两晚睡不着，开始觉得“没意义”</li>
+                  <li>我能做的：洗个热水澡，给妈妈发一条消息</li>
+                  <li>能让我分心：楼下便利店走一圈，摸一摸猫</li>
+                  <li>要求助的人：妈妈 138****2210 · 阿哲 139****8871</li>
+                  <li>专业资源：12356 · 北京安定医院心理门诊</li>
+                </ul>
+              </details>
+
+              <p class="crisis-foot">心迹不是急救服务。如果你有立即的生命危险，请拨打 120 或 110，或前往最近的急诊。安全计划只保存在你的设备上。</p>
+              <button class="crisis-exit" data-close="crisis">我先离开，回到今天</button>
+            </div>
+          </div>
+
+          <!-- ========== EXPLAIN SHEET ========== -->
+          <div class="overlay" id="ov-explain" role="dialog" aria-modal="true" aria-label="这条结论怎么来的">
+            <div class="scrim" data-close="explain"></div>
+            <div class="sheet">
+              <div class="sheet-handle"></div>
+              <h3>这条结论怎么来的？</h3>
+              <p class="lead">我们把你每天的记录，按“有没有加班”分成两组，比较两组里“情绪偏低”的比例。不是拿某一次情绪下结论。</p>
+              <div class="calc-table">
+                <div class="calc-row"><span>分析天数</span><b>33 天</b></div>
+                <div class="calc-row"><span>有加班 · 情绪偏低</span><b>9 / 12 天</b></div>
+                <div class="calc-row"><span>无加班 · 情绪偏低</span><b>8 / 21 天</b></div>
+                <div class="calc-row"><span>概率比（lift）</span><b>≈ 1.8×</b></div>
+                <div class="calc-row"><span>95% 置信区间</span><b>1.2 – 2.9</b></div>
+                <div class="calc-row"><span>多重比较校正</span><b>BH-FDR q &lt; 0.1</b></div>
+              </div>
+              <div class="formula">p₁ = (9+1)/(12+2) = 0.71<br>p₀ = (8+1)/(21+2) = 0.39<br>lift = p₁ / p₀ ≈ 1.83 → 展示为约 1.8 倍</div>
+              <p class="note">样本少于 5 天、或置信区间跨过 1 的因素，我们不会展示。即使通过检验，也只说明“一起出现”，不能说明“加班导致了你情绪低”。你可以把它变成一个两周的小实验，用自己的数据验证。</p>
+              <button class="btn primary wide" data-close="explain">知道了</button>
+            </div>
+          </div>
+
+          <!-- ========== WRITE OVERLAY ========== -->
+          <div class="overlay" id="ov-write" role="dialog" aria-modal="true" aria-label="书写练习">
+            <div class="sheet-full write-screen">
+              <div class="breathe-top">
+                <button class="icon-btn" data-close="write" aria-label="关闭">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+                <span class="label">3 分钟 · 书写</span>
+                <span style="width:34px"></span>
+              </div>
+              <h3 id="writeTitle">三句话</h3>
+              <p class="prompt" id="writePrompt">发生了什么？我当时的想法是什么？我现在需要什么？</p>
+              <textarea id="writeInput" placeholder="写给自己看，不用连贯……"></textarea>
+              <button class="btn primary wide" data-action="saveWrite">写完了</button>
+            </div>
+          </div>
+
+          <!-- ========== TOAST ========== -->
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+  const app = $('#app');
+  const TIME = '21:26';
+
+  const state = {
+    page: 'onboard',
+    mood: null,
+    draft: { emotion: null, intensity: 3, tags: [], note: '' },
+    recIndex: 0,
+    experiment: false,
+    breathe: null,
+    player: null,
+    write: null
+  };
+
+  const pages = ['onboard','home','record','reflect','insights','toolbox','profile'];
+  const tabs = ['home','insights','toolbox','profile'];
+
+  /* ---------- fit device ---------- */
+  function fit(){
+    const area = document.querySelector('.device-area');
+    const wrap = $('#phoneWrap');
+    if (!area || !wrap) return;
+    const aw = area.clientWidth - 24;
+    const ah = area.clientHeight - 24;
+    let s = Math.min(1, aw / 412, ah / 868);
+    if (window.innerWidth <= 980) s = Math.min(1, (window.innerWidth - 16) / 412, (window.innerHeight - 60) / 868);
+    s = Math.max(.46, s);
+    wrap.style.setProperty('--s', s.toFixed(4));
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('load', fit);
+  fit();
+
+  /* ---------- navigation ---------- */
+  function go(page){
+    if (!pages.includes(page)) return;
+    state.page = page;
+    app.scrollTop = 0;
+    $$('.page').forEach(p => {
+      const on = p.id === 's-' + page;
+      p.classList.toggle('active', on);
+      p.classList.toggle('under', false);
+    });
+    app.classList.toggle('hide-tabs', !tabs.includes(page));
+    $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.go === page));
+    $$('.index button').forEach(b => {
+      const target = b.dataset.screen;
+      const match = target === page || (target === 'record' && page === 'reflect');
+      b.classList.toggle('active', match);
+    });
+    const body = $('#s-' + page + ' .screen-body');
+    if (body) body.scrollTop = 0;
+    if (page !== 'onboard') closeAll();
+  }
+
+  function closeAll(){
+    $$('.overlay.open').forEach(o => {
+      if (o.id === 'ov-breathe') stopBreathe();
+      if (o.id === 'ov-player') stopPlayer();
+      o.classList.remove('open');
+    });
+    app.classList.remove('dark-ui');
+  }
+
+  document.addEventListener('click', function(e){
+    const goEl = e.target.closest('[data-go]');
+    if (goEl){ go(goEl.dataset.go); return; }
+
+    const idx = e.target.closest('.index button');
+    if (idx){
+      const s = idx.dataset.screen;
+      if (s === 'crisis') openOverlay('crisis');
+      else go(s);
+      return;
+    }
+
+    const closer = e.target.closest('[data-close]');
+    if (closer){
+      const id = closer.dataset.close;
+      closeOverlay(id);
+      return;
+    }
+
+    const act = e.target.closest('[data-action]');
+    if (act){ handleAction(act.dataset.action, act); return; }
+
+    const tab = e.target.closest('.tab');
+    if (tab){ go(tab.dataset.go); }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){
+      const open = $('.overlay.open');
+      if (open) closeOverlay(open.id.replace('ov-',''));
+    }
+  });
+
+  /* ---------- overlays ---------- */
+  function openOverlay(name){
+    const el = $('#ov-' + name);
+    if (!el) return;
+    app.scrollTop = 0;
+    if (name === 'breathe'){ app.classList.add('dark-ui'); startBreathe(); }
+    if (name === 'player'){ app.classList.add('dark-ui'); }
+    el.classList.add('open');
+  }
+  function closeOverlay(name){
+    const el = $('#ov-' + name);
+    if (!el) return;
+    if (name === 'breathe') stopBreathe();
+    if (name === 'player') stopPlayer();
+    el.classList.remove('open');
+    if (!$('.overlay.open')) app.classList.remove('dark-ui');
+  }
+
+  function toast(msg){
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 1900);
+  }
+
+  /* ---------- actions ---------- */
+  function handleAction(action, el){
+    switch(action){
+      case 'start':
+        go('home');
+        break;
+      case 'crisis':
+        openOverlay('crisis');
+        break;
+      case 'breathe':
+        openOverlay('breathe');
+        break;
+      case 'explain':
+        openOverlay('explain');
+        break;
+      case 'experiment':
+        state.experiment = true;
+        el.textContent = '已加入 · 6/14 天';
+        el.style.color = 'var(--sage-deep)';
+        el.style.borderColor = 'var(--sage)';
+        toast('已加入实验：加班日睡前 3 分钟呼吸');
+        break;
+      case 'draft':
+        toast('草稿已保存 · 只有你能看到');
+        break;
+      case 'call':
+        toast('原型演示：将拨打 12356（匿名）');
+        break;
+      case 'contact':
+        toast('原型演示：将联系「妈妈」');
+        break;
+      case 'ground':
+        closeOverlay('crisis');
+        setTimeout(() => openPlayer('5-4-3-2-1 着陆','1 分钟 · 任何地方',1,'说出 5 样你看得见的东西，4 样摸得到的，3 种听得到的，2 种闻得到的，1 种尝得到的。'), 160);
+        break;
+      case 'finishPlayer':
+        finishPlayer();
+        break;
+      case 'saveWrite':
+        closeOverlay('write');
+        toast('已收好 · 没有评分，也没有对错');
+        break;
+      case 'plan':
+        toast('安全计划已打开（原型演示）');
+        break;
+      case 'export':
+        toast('将导出 JSON / Markdown（原型演示）');
+        break;
+      case 'join':
+        toast('Plus：完整历史、全部练习、情绪实验');
+        break;
+    }
+  }
+
+  /* ---------- home mood ---------- */
+  $$('#moodRow .mood').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('#moodRow .mood').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const label = btn.dataset.mood;
+      const val = btn.dataset.val;
+      state.mood = label;
+      $('#quickNote').innerHTML = '<b>' + TIME + '</b> · ' + label + ' · 已记下。想补充的话，点「记录」。';
+      toast('已记下 · ' + label);
+      const map = {'很低':'低落','低':'有点低','一般':'一般','好':'不错','很好':'很好'};
+      const recs = RECS[state.recIndex % RECS.length];
+      if (recs){
+        $('#recReason').textContent = '你刚刚记下「' + map[label] + '」。先不用解释，试试这个。';
+      }
+    });
+  });
+
+  /* ---------- recommendations ---------- */
+  const RECS = [
+    {title:'4-7-8 呼吸', meta:'3 分钟 · 睡前', reason:'因为你最近在 23 点后更容易焦虑。', action:'breathe'},
+    {title:'身体扫描', meta:'5 分钟 · 床上', reason:'身体还绷着的时候，先让它慢下来。', action:'player'},
+    {title:'三句话', meta:'3 分钟 · 任何地方', reason:'如果脑子很乱，把它写出来会比想清楚容易。', action:'write'}
+  ];
+  $('#recNext').addEventListener('click', () => {
+    state.recIndex = (state.recIndex + 1) % RECS.length;
+    const r = RECS[state.recIndex];
+    $('#recCard').style.opacity = '.35';
+    setTimeout(() => {
+      $('#recTitle').textContent = r.title;
+      $('#recMeta').textContent = r.meta;
+      $('#recReason').textContent = r.reason;
+      $('#recCard').style.opacity = '1';
+    }, 130);
+  });
+  $('#recStart').addEventListener('click', () => {
+    const r = RECS[state.recIndex];
+    if (r.action === 'breathe') openOverlay('breathe');
+    else if (r.action === 'player') openPlayer('身体扫描','5 分钟 · 床上',5,'从脚趾开始，慢慢把注意力移到头顶。走神也没关系，发现了就回来。');
+    else openWrite('三句话','发生了什么？我当时的想法是什么？我现在需要什么？');
+  });
+
+  /* ---------- record ---------- */
+  $$('#emotionGrid .emotion-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('#emotionGrid .emotion-card').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.draft.emotion = btn.dataset.emotion;
+      state.draft.hint = btn.dataset.hint;
+    });
+  });
+  $$('#intensity .seg').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('#intensity .seg').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.draft.intensity = +btn.dataset.i;
+      $('#intensityLabel').textContent = btn.dataset.i + ' / 5';
+    });
+  });
+  $$('#recordTags .tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('selected');
+      const t = btn.textContent.trim();
+      const i = state.draft.tags.indexOf(t);
+      if (i > -1) state.draft.tags.splice(i, 1);
+      else state.draft.tags.push(t);
+    });
+  });
+
+  let recording = false;
+  $('#mic').addEventListener('click', () => {
+    if (recording) return;
+    recording = true;
+    $('#mic').classList.add('recording');
+    $('#micLabel').textContent = '正在听…';
+    $('#wave').classList.add('on');
+    setTimeout(() => {
+      const note = $('#note');
+      if (!note.value.trim()) note.value = '明天要汇报，怕讲砸。';
+      $('#micLabel').textContent = '已转成文字，可以改';
+      $('#wave').classList.remove('on');
+      $('#mic').classList.remove('recording');
+      recording = false;
+      state.draft.note = note.value;
+    }, 1900);
+  });
+
+  $('#saveEntry').addEventListener('click', () => {
+    if (!state.draft.emotion){
+      toast('先选一个最接近的情绪');
+      const grid = $('#emotionGrid');
+      grid.classList.remove('shake');
+      void grid.offsetWidth;
+      grid.classList.add('shake');
+      return;
+    }
+    const note = $('#note').value.trim();
+    state.draft.note = note;
+    buildReflection();
+    go('reflect');
+  });
+
+  function buildReflection(){
+    const e = state.draft.emotion;
+    const note = state.draft.note;
+    let base = '';
+    if (e === '焦虑') base = '这种绷着的感觉，先不用急着解决。要不要先松一下肩膀？';
+    else if (e === '疲惫') base = '听起来你不是不想努力，只是真的累了。今晚先少做一件事，也算照顾自己。';
+    else if (e === '悲伤') base = '这种难过不需要马上被说服。先允许它待一会儿，我陪你记着。';
+    else if (e === '愤怒') base = '愤怒是在替你说话。先不急着压下去，看看它想保护什么。';
+    else if (e === '羞耻') base = '“不够好”的感觉很真实，但它不是事实。你会对朋友这么苛刻吗？';
+    else if (e === '平静') base = '能把这一刻记下来，本身就很好。记住这种松弛，下次可以再回来。';
+    else if (e === '喜悦') base = '这份开心值得被留下。以后翻到这里，你会知道它真的发生过。';
+    else base = '说不清也没关系。先把它放在这里，不用现在就弄明白。';
+    const text = note ? '“' + note + '” —— ' + base : base;
+    $('#reflectText').textContent = text;
+    $('#reflectMeta').textContent = '10月30日 · ' + TIME + ' · 已保存';
+  }
+
+  /* ---------- insights ---------- */
+  const moodValues = [4.2, 5.0, 4.6, 6.2, 5.4, 6.8, 5.8];
+  function smoothPath(pts){
+    let d = 'M' + pts[0].x + ',' + pts[0].y;
+    for (let i = 0; i < pts.length - 1; i++){
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const t = 0.18;
+      const c1x = p1.x + (p2.x - p0.x) * t, c1y = p1.y + (p2.y - p0.y) * t;
+      const c2x = p2.x - (p3.x - p1.x) * t, c2y = p2.y - (p3.y - p1.y) * t;
+      d += ' C' + c1x + ',' + c1y + ' ' + c2x + ',' + c2y + ' ' + p2.x + ',' + p2.y;
+    }
+    return d;
+  }
+  function drawChart(){
+    const pts = moodValues.map((v, i) => ({x: 14 + i * 48.6, y: 100 - (v - 3) * 24}));
+    const line = smoothPath(pts);
+    $('#chartLine').setAttribute('d', line);
+    $('#chartArea').setAttribute('d', line + ' L' + pts[pts.length - 1].x + ',118 L' + pts[0].x + ',118 Z');
+    const g = $('#chartDots');
+    g.innerHTML = '';
+    pts.forEach((p, i) => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', i === pts.length - 1 ? 3.4 : 2.4);
+      c.setAttribute('fill', i === pts.length - 1 ? '#B45B3C' : '#FBF7EE');
+      c.setAttribute('stroke', '#B45B3C'); c.setAttribute('stroke-width', '1.2');
+      g.appendChild(c);
+    });
+  }
+  drawChart();
+
+  const heatPattern = [2,3,1,0,2,4,3, 1,2,3,2,1,3,4, 0,1,2,3,2,2,1, 3,4,3,2,1,0,2, 2,3,4,3,2,1,3];
+  heatPattern.forEach(v => {
+    const i = document.createElement('i');
+    if (v > 0) i.className = 'l' + v;
+    $('#heat').appendChild(i);
+  });
+
+  $$('.segment-control button').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('.segment-control button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      if (b.dataset.seg === 'month') toast('月视图在 V1 开放，先看这一周。');
+    });
+  });
+
+  /* ---------- toolbox filters ---------- */
+  let energy = 'all', timeLimit = 'all';
+  function applyFilters(){
+    let n = 0;
+    $$('#toolCards .tool-card').forEach(card => {
+      const e = card.dataset.energy, t = +card.dataset.time;
+      const okE = energy === 'all' || e === energy;
+      const okT = timeLimit === 'all' || t <= +timeLimit;
+      card.style.display = (okE && okT) ? '' : 'none';
+      if (okE && okT) n++;
+    });
+    let empty = $('#toolCards .empty');
+    if (n === 0 && !empty){
+      empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.textContent = '这个组合暂时没有，试试放宽一点。';
+      $('#toolCards').appendChild(empty);
+    } else if (n > 0 && empty){
+      empty.remove();
+    }
+  }
+  $$('#energyFilters .filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('#energyFilters .filter-chip').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); energy = b.dataset.energy; applyFilters();
+    });
+  });
+  $$('#timeFilters .filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      $$('#timeFilters .filter-chip').forEach(x => x.classList.remove('on'));
+      b.classList.add('on'); timeLimit = b.dataset.time; applyFilters();
+    });
+  });
+
+  $$('#toolCards .tool-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const mode = card.dataset.mode;
+      if (mode === 'write'){
+        openWrite(card.dataset.title, card.dataset.prompt || '写给自己看，不用连贯。');
+      } else if (mode === 'audio'){
+        openPlayer(card.dataset.title, card.dataset.min + ' 分钟 · 练习', +card.dataset.min, card.dataset.instruction || '');
+      } else {
+        openOverlay('breathe');
+      }
+    });
+  });
+
+  $$('.filters [data-mode="audio"]').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.dataset.action === 'breathe'){ openOverlay('breathe'); return; }
+      openPlayer(b.dataset.title, '1 分钟 · 练习', +b.dataset.min || 1, b.dataset.instruction || '');
+    });
+  });
+
+  /* ---------- profile ---------- */
+  $$('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sw = btn.querySelector('.switch');
+      sw.classList.toggle('on');
+      toast(sw.classList.contains('on') ? '已开启' : '已关闭');
+    });
+  });
+
+  /* ---------- breathe ---------- */
+  const PHASES = [
+    {key:'inhale', label:'吸气', sec:4},
+    {key:'hold', label:'屏住', sec:7},
+    {key:'exhale', label:'呼气', sec:8}
+  ];
+  function startBreathe(){
+    stopBreathe();
+    const wrap = $('#orbWrap');
+    wrap.classList.remove('inhale','hold','exhale');
+    $('#breatheDone').classList.remove('show');
+    const s = state.breathe = {cycle:1, phase:0, remain:4, total:57, timer:null};
+    wrap.classList.add('inhale');
+    updateBreathe();
+    s.timer = setInterval(tickBreathe, 1000);
+  }
+  function tickBreathe(){
+    const s = state.breathe;
+    if (!s) return;
+    s.total--;
+    if (s.total <= 0){ finishBreathe(); return; }
+    s.remain--;
+    if (s.remain <= 0){
+      if (s.phase < 2){
+        s.phase++;
+      } else {
+        s.cycle++;
+        s.phase = 0;
+        if (s.cycle > 3){ finishBreathe(); return; }
+      }
+      s.remain = PHASES[s.phase].sec;
+      const wrap = $('#orbWrap');
+      wrap.classList.remove('inhale','hold','exhale');
+      void wrap.offsetWidth;
+      wrap.classList.add(PHASES[s.phase].key);
+    }
+    updateBreathe();
+  }
+  function updateBreathe(){
+    const s = state.breathe;
+    if (!s) return;
+    $('#phaseLabel').textContent = PHASES[s.phase].label;
+    $('#phaseCount').textContent = s.remain;
+    const m = Math.floor(s.total / 60), sec = s.total % 60;
+    $('#breatheTotal').textContent = '还剩 ' + m + ':' + String(sec).padStart(2,'0') + ' · 第 ' + Math.min(s.cycle,3) + ' / 3 轮';
+    $$('#cycleDots i').forEach((d, i) => d.classList.toggle('on', i < s.cycle));
+  }
+  function finishBreathe(){
+    stopBreathe();
+    $('#breatheDone').classList.add('show');
+  }
+  function stopBreathe(){
+    if (state.breathe && state.breathe.timer) clearInterval(state.breathe.timer);
+    state.breathe = null;
+  }
+  $$('.mood-check button').forEach(b => {
+    b.addEventListener('click', () => {
+      toast('已记下：' + b.dataset.check);
+      closeOverlay('breathe');
+    });
+  });
+
+  /* ---------- player ---------- */
+  function openPlayer(title, sub, minutes, instruction){
+    $('#playerTitle').textContent = title;
+    $('#playerSub').textContent = sub;
+    $('#playerInstruction').textContent = instruction;
+    $('#playerType').textContent = minutes <= 1 ? '1 分钟练习' : '音频引导';
+    const total = Math.max(30, Math.round(minutes * 60));
+    state.player = {remain: total, total: total, timer: null, playing: true};
+    $('#playerBar').style.width = '0%';
+    updatePlayer();
+    openOverlay('player');
+    startPlayer();
+  }
+  function startPlayer(){
+    const p = state.player;
+    if (!p) return;
+    stopPlayerTimer();
+    p.playing = true;
+    $('#playIcon').innerHTML = '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>';
+    p.timer = setInterval(() => {
+      if (!state.player) return;
+      state.player.remain--;
+      if (state.player.remain <= 0){ finishPlayer(); return; }
+      updatePlayer();
+    }, 1000);
+  }
+  function stopPlayerTimer(){
+    if (state.player && state.player.timer) clearInterval(state.player.timer);
+    if (state.player) state.player.timer = null;
+  }
+  function stopPlayer(){
+    stopPlayerTimer();
+    state.player = null;
+  }
+  function updatePlayer(){
+    const p = state.player;
+    if (!p) return;
+    const m = Math.floor(p.remain / 60), s = p.remain % 60;
+    $('#playerTime').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    $('#playerBar').style.width = ((p.total - p.remain) / p.total * 100).toFixed(1) + '%';
+  }
+  function finishPlayer(){
+    stopPlayerTimer();
+    closeOverlay('player');
+    toast('做完了 · 不用有变化，也算数');
+  }
+  $('#playBtn').addEventListener('click', () => {
+    const p = state.player;
+    if (!p) return;
+    if (p.playing){
+      p.playing = false;
+      stopPlayerTimer();
+      $('#playIcon').innerHTML = '<path d="M8 5l11 7-11 7z"/>';
+    } else {
+      startPlayer();
+    }
+  });
+
+  /* ---------- write ---------- */
+  function openWrite(title, prompt){
+    $('#writeTitle').textContent = title || '三句话';
+    $('#writePrompt').textContent = prompt || '';
+    $('#writeInput').value = '';
+    openOverlay('write');
+    setTimeout(() => { try { $('#writeInput').focus(); } catch(e){} }, 420);
+  }
+
+  /* ---------- initial ---------- */
+  fit();
+  go('onboard');
+})();
+</script>
+</body>
+</html>

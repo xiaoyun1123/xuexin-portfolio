@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>王雪欣 — 作品集 · AI 产品 / 产品设计</title>
+<meta name="description" content="王雪欣的作品集：AI 产品、数据分析与 0→1 产品设计。">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --text: #1c1917;
+    --text-muted: #57534e;
+    --text-light: #78716c;
+    --border: #e7e5e4;
+    --accent: #0d9488;
+    --accent-light: #f0fdfa;
+    --tag-bg: #f5f5f4;
+    --tag-text: #44403c;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0a09;
+      --card: #1c1917;
+      --text: #fafaf9;
+      --text-muted: #d6d3d1;
+      --text-light: #a8a29e;
+      --border: #292524;
+      --accent: #2dd4bf;
+      --accent-light: #042f2e;
+      --tag-bg: #292524;
+      --tag-text: #d6d3d1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  }
+  @media print {
+    :root { --bg: #fff; --card: #fff; --text: #000; --text-muted: #333; --text-light: #555; --border: #ccc; }
+    body { font-size: 10pt; }
+    .section { page-break-inside: avoid; }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 48px 0 40px; }
+  .hero h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .hero .tagline { font-size: 1.1rem; color: var(--accent); font-weight: 500; margin-bottom: 16px; }
+  .hero .subtitle { font-size: 0.95rem; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+  .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+  .badge {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-size: 0.8rem; font-weight: 500;
+    background: var(--accent-light); color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  /* Sections */
+  .section { margin-top: 48px; }
+  .section-title {
+    font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title .icon { font-size: 1.2rem; }
+
+  /* Project cards */
+  .card-grid { display: grid; gap: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px 24px; box-shadow: var(--shadow);
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .card-title { font-size: 1rem; font-weight: 600; }
+  .card-title a { color: var(--text); text-decoration: none; }
+  .card-title a:hover { color: var(--accent); }
+  .card-desc a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--border); }
+  .card-desc a:hover { border-bottom-color: var(--accent); }
+  .card-metric {
+    font-size: 0.8rem; font-weight: 600; color: var(--accent); white-space: nowrap;
+    background: var(--accent-light); padding: 2px 10px; border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .card-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 6px; background: var(--tag-bg); color: var(--tag-text); }
+
+  /* Experience */
+  .exp-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .exp-company { font-weight: 600; font-size: 0.95rem; }
+  .exp-role { color: var(--text-muted); font-size: 0.9rem; }
+  .exp-date { font-size: 0.8rem; color: var(--text-light); white-space: nowrap; }
+  .exp-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-top: 4px; }
+
+  /* Skills */
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .skill-block { padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+  .skill-block h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--accent); }
+  .skill-block p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* Footer */
+  .footer { margin-top: 56px; text-align: center; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer p { font-size: 0.82rem; color: var(--text-light); }
+  .footer .contact { margin-top: 8px; font-size: 0.88rem; color: var(--text-muted); }
+
+  @media (max-width: 520px) {
+    .card-header { flex-direction: column; gap: 2px; }
+    .card-metric { align-self: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>王雪欣</h1>
+    <div class="tagline">资产评估 × AI 产品 × 产品设计</div>
+    <p class="subtitle">
+      西南财经大学资产评估硕士（2027届）。7 段实习跨 7 个行业，6 个 AI 项目 + 1 个 0→1 产品设计项目。
+      会写代码的商科生，懂估值的数据分析师，做过产品的 GTM。
+    </p>
+    <div class="badges">
+      <span class="badge">SWUFE 211 硕</span>
+      <span class="badge">Python · 6 Projects</span>
+      <span class="badge">LLM · Agent · MCP</span>
+      <span class="badge">Product 0→1</span>
+      <span class="badge">Flutter</span>
+      <span class="badge">English Work Proficient</span>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="section">
+    <h2 class="section-title"><span class="icon">&#x1F4E6;</span> 精选项目</h2>
+    <div class="card-grid">
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="xinji/index.html">心迹 · 情绪日记与自我关怀 &#8599;</a></div>
+          <span class="card-metric">0→1 · 6 单测</span>
+        </div>
+        <p class="card-desc">
+          面向 18–28 岁年轻人的情绪日记与自我关怀产品。独立完成公开研究、产品定义、交互设计、Flutter MVP 与 API 契约，用「记录 → 理解 → 行动 → 复评」闭环替代单点记录工具。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li><strong>3 秒记录</strong>：一次天气点击即完成记录，文字/语音是可选增强；补记无惩罚，用周目标替代日 streak。</li>
+          <li><strong>证据化洞察</strong>：同时展示样本、反例、lift 与 95% CI，明确“关联不是因果”；33 天演示数据得到 9/12 vs 8/21、lift ≈ 1.83。</li>
+          <li><strong>技术链路</strong>：Flutter + Hive AES-256 + Keychain/Keystore；OpenAPI 3.0 契约；6 个单测、0 analyze issue、9 个界面 0 console error。</li>
+          <li><strong>安全边界</strong>：12356 转介、L0–L3 分级、AI 依赖限制；按 2026 年拟人化互动新规把合规写进产品约束。</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">产品设计</span><span class="tag">用户研究</span><span class="tag">Flutter</span><span class="tag">Hive AES</span><span class="tag">OpenAPI</span><span class="tag">隐私合规</span>
+        </div>
+        <p class="card-desc" style="margin-top:10px;font-size:0.8rem;">
+          <a href="xinji/index.html">完整案例</a> &nbsp;·&nbsp;
+          <a href="xinji/xinji-case.pdf">案例 PDF</a> &nbsp;·&nbsp;
+          <a href="xinji/xinji-onepager.pdf">一页速览</a> &nbsp;·&nbsp;
+          <a href="xinji/prototype/index.html">可点击原型</a>
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="https://github.com/xiaoyun1123/feishu-agent-bot" target="_blank" rel="noopener">AI Agent 飞书智能助手 &#8599;</a></div>
+          <span class="card-metric">2月零宕机</span>
+        </div>
+        <p class="card-desc">
+          将开源 CLI Agent 框架（GenericAgent，~3K GitHub stars）产品化为飞书 IM 驱动的 AI 助手，用户通过自然语言操控本地 Agent 执行代码、操作文件、操控浏览器等 9 类任务。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li>设计三层产品架构（表现层/编排层/执行层），定义 9 个原子工具的能力边界：哪些自动执行、哪些需人工确认、哪些直接禁止</li>
+          <li>实现自进化技能系统——Agent 每完成一种新任务类型，自动结晶为可复用 skill 模板，累计 10+ 项技能</li>
+          <li>设计 21 条危险命令安全过滤规则（5 大类），危险操作自动拦截并转人工确认，不可绕过</li>
+          <li>V1.0→V2.0 修复 5 个关键 Bug，Watchdog 守护进程确保 2+ 月零故障运行</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">Python</span><span class="tag">LLM Agent</span><span class="tag">飞书 WebSocket API</span><span class="tag">产品架构</span><span class="tag">MCP 协议</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="https://github.com/xiaoyun1123/a-stock-agent" target="_blank" rel="noopener">A 股智能选股与量化风控系统 &#8599;</a></div>
+          <span class="card-metric">5,500+ 全市场筛选</span>
+        </div>
+        <p class="card-desc">
+          基于多 Agent 协作的 A 股智能分析系统，从全市场 5,500+ 只股票中通过三级漏斗筛选精选标的，综合技术面、基本面、情绪面与 LLM 决策。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li>三级漏斗架构：0 级纯规则 15 秒筛除 99% 无效标的 → 1 级 LLM 主题判断 → 2 级四 Agent 并行深挖（技术/基本面/情绪/决策）</li>
+          <li>四维度多因子加权评分（技术 30% + 基本面 25% + 情绪 25% + 板块对齐 20%），每只标的输出 0-100 评分 + BUY/SELL/HOLD + 目标价位 + 风险等级</li>
+          <li>多层风控体系：日亏损 3% 熔断 + 单只 20% 仓位上限 + 总数 5 只 + T+1 规则 + LLM 熔断器（3 次连续失败→断开 60s→试探→恢复）</li>
+          <li>6+ 数据源三源容灾：每个数据点配备主/备/兜底三个来源，东财 API 封禁→腾讯财经 HTTP 直连→新浪 K 线替代</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">Python</span><span class="tag">LangGraph</span><span class="tag">Pandas/NumPy</span><span class="tag">多 Agent 协作</span><span class="tag">风控设计</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="https://github.com/xiaoyun1123/mcp-servers" target="_blank" rel="noopener">MCP Server 矩阵（4 个）&#8599;</a></div>
+          <span class="card-metric">166+ 工具接口</span>
+        </div>
+        <p class="card-desc">
+          从零开发 4 个 MCP（Model Context Protocol）Server，将不同系统的数据能力封装为标准化 API 供 AI Agent 调用。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li><strong>Zotero MCP</strong>：基于 SQLite 的文献数据库查询服务，90+ 篇论文元数据结构化查询，支持复杂 SQL 分析与 schema 探查</li>
+          <li><strong>Obsidian MCP</strong>：知识库文件系统服务（7 个工具），全文搜索、双向链接分析、断链检测</li>
+          <li><strong>Stata MCP</strong>：统计计算服务，subprocess 调用 StataMP 执行批处理计量分析（DID/固定效应/Fama-MacBeth），含破坏性操作自动检测</li>
+          <li><strong>blend-ai MCP</strong>：Blender 3D 建模服务，双向 TCP 架构（Python ↔ Blender Addon），覆盖建模/材质/动画/物理仿真/渲染全流程</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">Python</span><span class="tag">MCP 协议</span><span class="tag">SQLite</span><span class="tag">TCP 通信</span><span class="tag">API 设计</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="https://github.com/xiaoyun1123/ugc-sentiment-monitor" target="_blank" rel="noopener">多平台 UGC 情感监控平台 &#8599;</a></div>
+          <span class="card-metric">3 平台 · 30s 全流程</span>
+        </div>
+        <p class="card-desc">
+          集数据采集、AI 情感分析、可视化仪表盘于一体的舆情监控工具。打通小红书、B 站、知乎三平台，支持关键词搜索与热榜追踪双模式。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li>各平台封装独立解析器处理响应格式差异，30 秒超时 + JSONDecodeError 兜底，小红书登录态自动检测提示</li>
+          <li>调用 DeepSeek 大模型进行三级情感分类（正面/负面/中性），失败自动降级为 "unknown"，选择 LLM 而非自训练模型——零标注成本、迭代快</li>
+          <li>Streamlit 交互看板：情感分布饼图/日度趋势折线图/高频词云/点赞 Top 10/全平台对比柱状图/CSV 一键导出，全图表支持平台与日期动态筛选</li>
+          <li>累计积累数千条结构化样本，构建从数据采集到分析输出的全自动 pipeline</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">Python</span><span class="tag">DeepSeek API</span><span class="tag">Streamlit</span><span class="tag">数据看板</span><span class="tag">多源采集</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><a href="https://github.com/xiaoyun1123/auto-fill-extension" target="_blank" rel="noopener">Chrome 智能填表扩展 v1.2.1 &#8599;</a></div>
+          <span class="card-metric">9 平台 · 90%+ 覆盖</span>
+        </div>
+        <p class="card-desc">
+          Manifest V3 浏览器扩展，面向招聘场景，智能识别表单字段并自动填充简历信息，覆盖 9 个主流招聘平台。
+        </p>
+        <ul class="card-desc" style="padding-left:18px;margin-top:4px;">
+          <li>5 级渐进匹配规则引擎：CSS 选择器精确匹配（300 分）→ 属性匹配 → 标签匹配 → 中文子串模糊匹配（长度加权）→ LLM 语义兜底</li>
+          <li>纯规则覆盖率约 85%，LLM 兜底后提升至 90%+</li>
+          <li>解决 React 受控组件值回弹问题：原生值 setter + dispatchEvent（composed: true），绕过虚拟 DOM 状态管理</li>
+          <li>v1.2.1 新增 Answer Memory：用户手动修正字段值后自动记录，下次同类字段直接用修正值，减少 LLM 调用</li>
+        </ul>
+        <div class="card-tags">
+          <span class="tag">Chrome MV3</span><span class="tag">JavaScript</span><span class="tag">LLM API</span><span class="tag">规则引擎</span><span class="tag">DOM 操作</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section class="section">
+    <h2 class="section-title"><span class="icon">&#x1F4BC;</span> 实习经历</h2>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">极米科技（科创板 688696）</span> <span class="exp-role">— 海外 GTM</span></div>
+        <span class="exp-date">2026.06 – 至今</span>
+      </div>
+      <p class="exp-desc">全球家用投影仪出货量第一（IDC 2025）。独立搭建飞书多维表格 BI 看板（四模块），Python 自动化数据 pipeline（Amazon SP-API），更新效率提升 8×（2h→15min），频率从周→日。正在设计基于 LLM 的竞品分析 Agent。</p>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">麦可思数据科技</span> <span class="exp-role">— 数据分析</span></div>
+        <span class="exp-date">2025.12 – 2026.02</span>
+      </div>
+      <p class="exp-desc">处理 40,000+ 条调查数据，独立完成 10+ 份高校就业质量年报（30-50页/份）。Python 自动化脚本将报告处理效率提升约 60%，被 3 位同事采用。参与 30+ 个 B2B 数据项目全流程交付。</p>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">天风证券</span> <span class="exp-role">— 行业研究员（线上）</span></div>
+        <span class="exp-date">2025.08 – 2025.10</span>
+      </div>
+      <p class="exp-desc">建立覆盖农业板块 100+ 条指标的动态数据跟踪体系，参与撰写行业周报 4 篇，协助更新头部企业财务预测模型并完成敏感性分析和情景分析。</p>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">西藏民企运行横向课题（政府委托）</span> <span class="exp-role">— 数据分析与咨询</span></div>
+        <span class="exp-date">2025.07 – 2026.02</span>
+      </div>
+      <p class="exp-desc">使用 Python 处理 24,000+ 条季度调研数据，输出 50+ 张可视化图表供政府决策参考。率先引入 LLM 辅助开放题文本分析，替代传统人工编码，效率提升约 3 倍。</p>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">成都新津城市产业发展集团</span> <span class="exp-role">— 资产运营</span></div>
+        <span class="exp-date">2024.07 – 2024.09</span>
+      </div>
+      <p class="exp-desc">参与 2 项商业物业资产收购全流程（尽调→评估→移交→运营），发现 200㎡ 未登记产权面积并反馈法务。建立 ROI 预测模型推动公园改造项目通过集团投审会。</p>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-header">
+        <div><span class="exp-company">容诚会计师事务所</span> <span class="exp-role">— 审计助理</span></div>
+        <span class="exp-date">2024.11 – 2025.01</span>
+      </div>
+      <p class="exp-desc">独立完成 1,000+ 笔收入类实质性测试（准确率 98%），通过跨期跨报表交叉比对识别 3 类关键审计差异。Excel VBA 自动化脚本提升底稿处理效率约 40%。</p>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="section">
+    <h2 class="section-title"><span class="icon">&#x1F9F0;</span> 技能</h2>
+    <div class="skill-grid">
+      <div class="skill-block">
+        <h4>AI & Agent</h4>
+        <p>LLM 应用开发（6项目）· Agent 架构 · MCP 协议 · Prompt Engineering · 浏览器自动化</p>
+      </div>
+      <div class="skill-block">
+        <h4>数据技术</h4>
+        <p>Python（Pandas/NumPy/Streamlit）· SQL · BI 看板（飞书多维表格）· 多源数据整合 · 自动化 Pipeline</p>
+      </div>
+      <div class="skill-block">
+        <h4>金融与估值</h4>
+        <p>Wind 终端 · 财务建模 · 资产评估三大方法 · Stata 计量分析 · 行业研究方法论</p>
+      </div>
+      <div class="skill-block">
+        <h4>GTM 与商业</h4>
+        <p>竞品分析 · 定价策略 · 跨部门项目推动 · 英语工作能力（CET-6）· 30+ B2B 项目交付</p>
+      </div>
+      <div class="skill-block">
+        <h4>产品与设计</h4>
+        <p>用户研究 · 交互设计 · 0→1 产品定义 · Flutter · 隐私合规 · OpenAPI 契约</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>王雪欣 · 西南财经大学资产评估硕士 · 2027 年 6 月毕业</p>
+    <p class="contact">&#x1F4E7; 18380314941@163.com &nbsp;|&nbsp; 可到岗：2027.06</p>
+  </div>
+
+</div>
+
+</body>
+</html>

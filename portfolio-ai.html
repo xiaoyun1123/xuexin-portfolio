@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>王雪欣 — AI 产品作品集</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #7a7a7a;
+    --line: #dcdcdc;
+    --accent: #0d6e63;
+    --accent-soft: #eef7f5;
+    --tag-bg: #f2f2f0;
+  }
+
+  @page { size: A4; margin: 13mm 14mm 12mm; }
+
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", -apple-system, sans-serif;
+    color: var(--ink);
+    font-size: 10pt;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    background: #fff;
+  }
+
+  /* ---------- 封面 ---------- */
+  .cover { padding-bottom: 14px; border-bottom: 2px solid var(--ink); margin-bottom: 6px; }
+  .cover .name { font-size: 26pt; font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; }
+  .cover .role { font-size: 12pt; color: var(--accent); font-weight: 600; margin-top: 4px; letter-spacing: 0.02em; }
+  .cover .pitch { font-size: 10.3pt; color: var(--ink-2); margin-top: 12px; line-height: 1.7; }
+  .cover .contact { font-size: 9.2pt; color: var(--ink-3); margin-top: 10px; }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .fact {
+    font-size: 8.8pt; font-weight: 600; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid #cfe4e0;
+    padding: 3px 10px; border-radius: 3px;
+  }
+
+  /* ---------- 章节 ---------- */
+  .sec { margin-top: 15px; }
+  .sec-title {
+    font-size: 11.5pt; font-weight: 700; letter-spacing: 0.04em;
+    padding-bottom: 5px; border-bottom: 1px solid var(--line); margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .sec-title .en { font-size: 8.5pt; font-weight: 400; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ---------- 概览表 ---------- */
+  table.ov { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  table.ov th {
+    text-align: left; font-weight: 600; color: var(--ink-3); font-size: 8.6pt;
+    padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); letter-spacing: 0.04em;
+  }
+  table.ov td { padding: 6px 8px 6px 0; border-bottom: 1px solid #eeeeec; vertical-align: top; color: var(--ink-2); }
+  table.ov td.pname { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  table.ov td.num { white-space: nowrap; color: var(--accent); font-weight: 600; }
+
+  /* ---------- 项目块 ---------- */
+  .proj { margin-top: 11px; border-top: 1px solid var(--line); padding-top: 9px; break-inside: avoid; }
+  .proj:first-of-type { border-top: none; padding-top: 0; }
+
+  .proj-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .proj-title { font-size: 11.5pt; font-weight: 700; }
+  .proj-title .idx {
+    display: inline-block; min-width: 22px; height: 18px; line-height: 18px; text-align: center;
+    background: var(--accent); color: #fff; font-size: 8.5pt; border-radius: 2px;
+    margin-right: 8px; vertical-align: 2px; font-weight: 700;
+  }
+  .proj-meta { font-size: 8.8pt; color: var(--ink-3); white-space: nowrap; }
+  .proj-sum { font-size: 9.7pt; color: var(--ink-2); margin-top: 5px; font-style: normal; }
+
+  .kv { margin-top: 8px; }
+  .kv-row { display: flex; gap: 10px; margin-bottom: 3px; font-size: 9.6pt; line-height: 1.6; }
+  .kv-k {
+    flex: 0 0 62px; font-weight: 600; color: var(--accent); font-size: 9pt;
+    padding-top: 1px; letter-spacing: 0.02em;
+  }
+  .kv-v { flex: 1; color: var(--ink-2); }
+  .kv-v ul { padding-left: 15px; }
+  .kv-v li { margin-bottom: 2px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .tag { font-size: 8.3pt; padding: 1.5px 7px; border-radius: 2px; background: var(--tag-bg); color: var(--ink-2); }
+
+  /* ---------- 在研 ---------- */
+  .pending { border-left: 3px solid #d9a441; background: #fdfaf3; padding: 10px 14px; margin-top: 12px; break-inside: avoid; }
+  .pending .pt { font-weight: 700; font-size: 10.5pt; }
+  .pending .pd { font-size: 9.4pt; color: var(--ink-2); margin-top: 4px; }
+
+  /* ---------- 技能 ---------- */
+  .skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; break-inside: avoid; }
+  .skill h4 { font-size: 9.3pt; font-weight: 700; color: var(--accent); margin-bottom: 3px; letter-spacing: 0.03em; }
+  .skill p { font-size: 9.2pt; color: var(--ink-2); line-height: 1.6; }
+
+  .foot { margin-top: 26px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 8.6pt; color: var(--ink-3); display: flex; justify-content: space-between; break-inside: avoid; }
+
+  /* 技能区块整体不跨页，避免只剩标题孤零零落在上一页 */
+  .sec.keep { break-inside: avoid; }
+
+  .pagebreak { break-after: page; }
+</style>
+</head>
+<body>
+
+<!-- ============ 封面 ============ -->
+<div class="cover">
+  <div class="name">王雪欣</div>
+  <div class="role">AI 产品作品集 · 2026.10</div>
+  <p class="pitch">
+    西南财经大学资产评估硕士（2027 届）。我用两年时间独立做了 6 个 AI 产品，
+    每一个都源于同一件事：<b>我自己用起来不顺手，于是动手把它改顺。</b>
+    我写的不是 demo，是能连续跑两个月不宕机的工具；我做的不是功能堆叠，是反复问"这个取舍对用户意味着什么"之后的结果。
+  </p>
+  <div class="contact">
+    18380314941 &nbsp;|&nbsp; 18380314941@163.com &nbsp;|&nbsp; 四川成都 &nbsp;|&nbsp; github.com/xiaoyun1123
+  </div>
+  <div class="facts">
+    <span class="fact">6 个独立 AI 产品</span>
+    <span class="fact">2+ 月零宕机</span>
+    <span class="fact">180+ MCP 工具</span>
+    <span class="fact">9 平台适配</span>
+    <span class="fact">英语读写可作工作语言</span>
+  </div>
+</div>
+
+<!-- ============ 概览 ============ -->
+<section class="sec">
+  <div class="sec-title"><span>作品概览</span><span class="en">Overview</span></div>
+  <table class="ov">
+    <tr>
+      <th style="width:31%">作品</th>
+      <th>一句话</th>
+      <th style="width:19%">关键规模</th>
+      <th style="width:11%">角色</th>
+    </tr>
+    <tr>
+      <td class="pname">AI Agent 飞书智能助手</td>
+      <td>把命令行 AI Agent 搬进日常已经在用的即时通讯工具</td>
+      <td class="num">2+ 月零宕机</td>
+      <td>产品 + 开发</td>
+    </tr>
+    <tr>
+      <td class="pname">Chrome 智能填表扩展</td>
+      <td>解决求职岗位投递中的重复填表，从自用长成 9 平台通用工具</td>
+      <td class="num">9 平台 · 85% 规则覆盖</td>
+      <td>产品 + 开发</td>
+    </tr>
+    <tr>
+      <td class="pname">多平台 UGC 情感监控</td>
+      <td>三平台舆情采集 + LLM 情感标注 + 交互看板</td>
+      <td class="num">30 秒全流程</td>
+      <td>产品 + 开发</td>
+    </tr>
+    <tr>
+      <td class="pname">MCP Server 矩阵</td>
+      <td>把 4 个异构系统的能力封装成 AI 可调用的标准接口</td>
+      <td class="num">180+ 工具接口</td>
+      <td>独立开发</td>
+    </tr>
+    <tr>
+      <td class="pname">个人知识库系统 Claudian</td>
+      <td>用"编译而非检索"重构个人知识管理</td>
+      <td class="num">200+ 素材</td>
+      <td>独立设计</td>
+    </tr>
+    <tr>
+      <td class="pname">A 股智能选股系统</td>
+      <td>用分层漏斗把 LLM 的成本压到只用在需要判断的地方</td>
+      <td class="num">5,500+ 标的全市场</td>
+      <td>独立开发</td>
+    </tr>
+    <tr>
+      <td class="pname">竞品分析 Agent</td>
+      <td>把实习中"每周手工追踪竞品"归纳为可自动化的产品需求</td>
+      <td class="num">设计中（未上线）</td>
+      <td>需求 + 架构</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============ 能力范围 ============ -->
+<section class="sec keep">
+  <div class="sec-title"><span>能力范围</span><span class="en">Toolkit</span></div>
+  <div class="skill-grid">
+    <div class="skill">
+      <h4>AI / Agent</h4>
+      <p>LLM 应用开发（Claude / DeepSeek / Gemini）· Agent 架构（ReAct / Multi-Agent / Plan-Execute）· MCP Server 开发 · Prompt Engineering · 上下文工程 · 浏览器自动化（CDP / Playwright）</p>
+    </div>
+    <div class="skill">
+      <h4>数据</h4>
+      <p>Python（Pandas / NumPy / Streamlit）· SQL（含 ODPS）· 多源数据采集管道 · 数据可视化 · BI 看板（飞书多维表格）· Excel VBA</p>
+    </div>
+    <div class="skill">
+      <h4>产品</h4>
+      <p>需求定义与优先级判断 · 产品架构与交互设计 · 工具能力边界设计 · 成本与覆盖率权衡 · 用户反馈驱动迭代 · 跨部门项目推进</p>
+    </div>
+    <div class="skill">
+      <h4>工程与协作</h4>
+      <p>JavaScript（Chrome MV3）· 飞书开放平台（WebSocket / 卡片消息 / 权限）· Git · 英语读写可作工作语言（CET-6，日常处理英文资料与海外业务）</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 ============ -->
+<section class="sec" style="break-before: page;">
+  <div class="sec-title"><span>核心作品</span><span class="en">Selected Work</span></div>
+
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">01</span>AI Agent 飞书智能助手</div>
+      <div class="proj-meta">2026.03 – 2026.05 ｜ 独立完成 ｜ github.com/xiaoyun1123/feishu-agent-bot</div>
+    </div>
+    <p class="proj-sum">基于开源 Agent 框架（约 3K stars）完成飞书生态产品化——把只能在终端里敲命令的 AI Agent，改造成用聊天就能指挥的助手。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">开源 CLI 框架能力很强，但每次使用都要开终端、记命令、手动传路径。真正阻碍它的不是能力，是<b>使用成本</b>。</div></div>
+      <div class="kv-row"><div class="kv-k">判断</div><div class="kv-v">应该把交互层搬到用户已经在用的地方，而不是要求用户去适应工具。飞书是我每天打开几十次的软件，所以产品形态定为"在飞书里发一句话"。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>三层架构</b>：飞书表现层 → Agent 调度层 → 工具执行层。分层的目的是让"改交互不影响执行、换工具不重写交互"。</li>
+          <li><b>9 个原子工具的能力边界</b>：明确哪些自动执行（读取、截图）、哪些必须人工确认（写文件、执行代码）、哪些直接禁止。边界本身就是产品决策。</li>
+          <li><b>21 条危险命令过滤规则</b>：覆盖文件删除、注册表修改、磁盘格式化、进程终止、系统目录写入 5 类，命中即拦截并转人工，不可绕过——在自主性与可控性之间划硬线。</li>
+          <li><b>自进化技能系统</b>：Agent 每完成一类新任务，执行路径自动结晶为可复用技能模板，累计 10+ 项，形成"用得越久越好用"的飞轮。</li>
+          <li><b>上下文窗口策略</b>：28,000 chars 预算，最近 8 轮完整保留 + 更早对话摘要压缩，在连贯性与 token 成本之间取平衡。</li>
+          <li><b>卡片渲染的物理限制</b>：飞书 Markdown 表格在 10–20 行会截断，超限自动折叠，而不是让用户看到半张表。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">V1.0 → V2.0 修复 5 个关键问题（空页面崩溃、错误无限重试、上下文裁剪导致 API 400、状态泄漏、多实例连接竞争），守护进程连续运行 2+ 月零宕机。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Python</span><span class="tag">LLM Agent</span><span class="tag">飞书开放平台</span><span class="tag">产品架构</span><span class="tag">安全边界设计</span></div>
+  </div>
+
+  <!-- ============ 02 ============ -->
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">02</span>Chrome 智能填表扩展 v1.2.1</div>
+      <div class="proj-meta">2026.05 ｜ 独立完成 ｜ github.com/xiaoyun1123/auto-fill-extension</div>
+    </div>
+    <p class="proj-sum">面向求职场景的浏览器扩展，自动识别各招聘平台的表单字段并填充简历信息。起点很简单：我自己每天填十几张表，太烦了。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">招聘平台的表单结构各不相同，字段命名五花八门。真正的问题不是"能不能识别"，而是<b>识别错了怎么办</b>——填错一个手机号比不填更糟。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>5 级渐进匹配引擎</b>：CSS 选择器精确匹配（300 分）→ 属性匹配 → 标签匹配 → 中文子串模糊匹配（长度加权）。每一级的阈值和权重都是在"填得准"和"填得上"之间做取舍，纯规则覆盖约 85%。</li>
+          <li><b>LLM 只兜底长尾</b>：规则处理确定性场景（快、零成本），LLM 语义映射只在前 4 级都失配时触发——把付费调用压到只在必要处发生，这是覆盖率与成本的 tradeoff。</li>
+          <li><b>Answer Memory</b>：用户手动修正某字段后自动记录，下次同类字段直接复用修正值，减少 LLM 调用，也让工具随着使用变准。</li>
+          <li><b>技术约束转产品方案</b>：React/Angular 的受控组件会让直接写入的值"弹回"，通过原生 setter + dispatchEvent（composed:true）绕过虚拟 DOM，让框架站点的填充成功率与原生站点持平。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">适配 9 个主流招聘平台（含 Workday、Greenhouse、Lever 等海外站点），中文招聘平台覆盖率 &gt;90%。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Chrome Extension MV3</span><span class="tag">JavaScript</span><span class="tag">LLM API</span><span class="tag">规则引擎设计</span><span class="tag">成本与覆盖率权衡</span></div>
+  </div>
+
+  <!-- ============ 03 ============ -->
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">03</span>多平台 UGC 情感监控平台</div>
+      <div class="proj-meta">2026.04 ｜ 独立完成 ｜ github.com/xiaoyun1123/ugc-sentiment-monitor</div>
+    </div>
+    <p class="proj-sum">集采集、AI 分析、可视化于一体的舆情工具，用于品牌口碑监测与竞品声量对比。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">要判断一个品牌或产品在社交平台上的真实口碑，只能人工一条条翻；翻完也说不清"整体是正还是负"。</div></div>
+      <div class="kv-row"><div class="kv-k">判断</div><div class="kv-v">情感分类做到"正/负/中性"三级就够用，因此选择调用现成大模型而不是自训练模型——<b>零标注成本、迭代更快</b>。在精度已经够用的场景，多花三个月训练模型是过度设计。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>补"热榜"模式</b>：最初只做关键词搜索，实际用起来发现大量热门内容根本不含目标关键词。热榜追踪是针对这个真实盲区补的功能。</li>
+          <li><b>每平台独立解析器</b>：三个平台响应格式完全不同，不做"通用解析"，各写各的，出问题好定位。</li>
+          <li><b>优雅降级</b>：单平台失败不影响其他平台；LLM 调用失败降级为 unknown 而不是让整批任务崩掉。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">单次任务 30 秒内完成三平台抓取与分析，累计数千条结构化样本；Streamlit 交互看板支持情感占比、日度趋势、高频词云、头部内容排行，可按平台与日期动态筛选。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Python</span><span class="tag">DeepSeek API</span><span class="tag">Streamlit</span><span class="tag">多源采集</span><span class="tag">交互看板</span></div>
+  </div>
+
+  <!-- ============ 04 ============ -->
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">04</span>MCP Server 矩阵（4 个）</div>
+      <div class="proj-meta">2026.04 – 2026.05 ｜ 独立完成 ｜ github.com/xiaoyun1123/mcp-servers</div>
+    </div>
+    <p class="proj-sum">用 MCP（Model Context Protocol）把 Zotero、Obsidian、Stata、Blender 四个异构系统的能力，封装成 AI Agent 可以直接调用的标准接口，共 180+ 个工具。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">大模型知道"该怎么分析"，但它接触不到我的文献库、笔记库和统计软件。模型能力与私有数据之间缺一层标准化的接口。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>工具粒度</b>：每个 Server 不暴露底层全量能力，而是挑出高频、语义明确的动作封装成工具。工具太多模型会选错，太少又不够用。</li>
+          <li><b>破坏性操作防护</b>：Stata Server 对可能覆盖数据、删除文件的命令做自动检测拦截，防止模型"好心办坏事"。</li>
+          <li><b>Blender 的双向 TCP 架构</b>：Python 侧与 Blender Addon 侧各自维护状态，覆盖建模、材质、动画、物理仿真、渲染全流程。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">四个 Server 支撑了我自己的论文写作、知识管理、建模工作流；对 MCP 协议的工具发现、权限模型、上下文注入机制有实操层面的理解。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Python</span><span class="tag">MCP 协议</span><span class="tag">SQLite</span><span class="tag">TCP 通信</span><span class="tag">API 设计</span></div>
+  </div>
+
+  <!-- ============ 05 ============ -->
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">05</span>个人知识库系统 Claudian</div>
+      <div class="proj-meta">2026.03 – 2026.05 ｜ 独立设计</div>
+    </div>
+    <p class="proj-sum">基于 LLM 的个人知识管理系统，核心主张是<b>"编译而非检索"</b>——数据进入时一次性加工成结构化知识，后续复用时不再重复计算。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">读过的论文、看过的视频、存下的网页散落在各个地方，要用的时候找不到；就算找到，也要重新读一遍才知道它讲了什么。</div></div>
+      <div class="kv-row"><div class="kv-k">判断</div><div class="kv-v">传统 RAG 每次提问都要重新检索、重新理解，同一份材料被反复"读"很多遍。如果把理解发生在入口而不是出口，成本只付一次，之后每次复用都是零边际成本。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>多模态入口统一</b>：视频转录、PDF 提取、网页抓取、图片描述四种素材入口，统一落成结构化 Markdown，下游不必关心来源。</li>
+          <li><b>LLM 编译引擎</b>：自动提取概念、人物、方法论、矛盾关系，按语义写入知识图谱三类节点。</li>
+          <li><b>质量维护自动化</b>：定期检测断链、孤儿页面、过期内容、索引漂移、矛盾未更新 5 类问题——知识库不维护就会腐烂。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">累计处理素材 200+ 条；系统已连续使用数月，成为我做研究、写材料的主要工作入口。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Python</span><span class="tag">LLM 编译</span><span class="tag">Obsidian</span><span class="tag">知识图谱</span><span class="tag">MCP</span></div>
+  </div>
+
+  <!-- ============ 06 ============ -->
+  <div class="proj">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">06</span>A 股智能选股与量化风控系统</div>
+      <div class="proj-meta">2026.04 – 2026.05 ｜ 独立完成</div>
+    </div>
+    <p class="proj-sum">基于多 Agent 协作的 A 股分析系统，把"全市场 5,500+ 只股票"从不可能交给 LLM 处理的规模，压到 LLM 只处理真正需要判断的部分。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">问题</div><div class="kv-v">让大模型逐只分析全市场股票，成本和时间都无法承受。但粗暴降采样又会漏掉机会。</div></div>
+      <div class="kv-row"><div class="kv-k">关键决策</div><div class="kv-v">
+        <ul>
+          <li><b>三级漏斗</b>：0 级纯规则 15 秒筛掉约 99% 无效标的 → 1 级 LLM 做主题判断筛至 1–3 个板块 → 2 级四 Agent 并行深挖。把 LLM 用在"需要判断"的环节，而不是"能算出来"的环节。</li>
+          <li><b>多因子加权</b>：技术面 30% + 基本面 25% + 情绪面 25% + 板块对齐 20%，每只标的输出 0–100 评分、操作建议、目标价位与风险等级。</li>
+          <li><b>风控优先于收益</b>：日亏损 3% 熔断、单只仓位 20% 上限、总持仓 5 只、T+1 规则，外加 LLM 熔断器（连续失败 3 次断开 60 秒后试探恢复）。</li>
+          <li><b>数据源三层容灾</b>：每个数据点配主/备/兜底三个来源，单一数据源失效时系统降级运行而非崩溃。</li>
+        </ul>
+      </div></div>
+      <div class="kv-row"><div class="kv-k">结果</div><div class="kv-v">全市场分析从 46 小时压缩到分钟级；系统在多个数据源先后失效的情况下持续可用。</div></div>
+    </div>
+    <div class="tags"><span class="tag">Python</span><span class="tag">LangGraph</span><span class="tag">多 Agent 协作</span><span class="tag">Pandas/NumPy</span><span class="tag">风控设计</span></div>
+  </div>
+</section>
+
+<!-- ============ 在研 + 业务落地 ============ -->
+<section class="sec">
+  <div class="sec-title"><span>在研项目与业务落地</span><span class="en">In Progress &amp; In Business</span></div>
+
+  <div class="pending">
+    <div class="pt">07 · 竞品分析 Agent —— 需求文档与架构设计已完成，尚未开发</div>
+    <p class="pd">
+      来源是极米实习中的真实痛点：每周手工追踪竞品是纯体力活。但我在写需求时先把目标纠正了一次——<b>痛的不是"找不到信息"，而是"信息太多、噪声太大、没人知道今天该看哪一条"</b>。
+      所以产品目标不是"更多信息"，而是"更少但更准的信号"：自动抓取竞品 Listing 变化、社媒动态、官网更新 → LLM 结构化提取差异点 → 生成每周简报，并按对自家产品的影响面排序、标注高优先级信号。
+      <b>状态如实说明：设计完成，未开发，没有任何效果数据。</b>
+    </p>
+  </div>
+
+  <div class="proj" style="margin-top:14px;">
+    <div class="proj-head">
+      <div class="proj-title"><span class="idx">08</span>AI 在真实组织中的落地（非个人项目）</div>
+      <div class="proj-meta">2025.07 – 至今 ｜ 西藏民企课题 / 极米科技</div>
+    </div>
+    <p class="proj-sum">自己做出工具只是第一步，让别人愿意用才是难点。这两段经历回答的是同一个问题：怎么在一个并不天然拥抱新技术的组织里，把 AI 真正用起来。</p>
+    <div class="kv">
+      <div class="kv-row"><div class="kv-k">西藏课题</div><div class="kv-v">课题组十余人长期用 Excel 手工处理每季度几千份问卷。我没有一开始就提议"大家改用 AI"，而是自己先用大模型做开放题文本的主题聚类与观点抽取，跑出结果、和人工编码结果做对比，确认可用之后才拿给导师看。导师认可后再推广到全组——<b>先自证，再推广</b>。开放题分析效率提升约 3 倍。</div></div>
+      <div class="kv-row"><div class="kv-k">极米科技</div><div class="kv-v">在海外 GTM 岗位上，独立用飞书多维表格搭建覆盖区域 / 产品 / 渠道的周会看板，整合 Amazon 销售、供应链库存、售后 RMA、广告投放多源数据，配置定时自动拉取与跨源一致性校验；并基于实习中的真实痛点自行发起了第 07 项竞品分析 Agent 的设计。</div></div>
+      <div class="kv-row"><div class="kv-k">共同点</div><div class="kv-v">都不靠"技术很先进"说服人，靠的是<b>先把一个具体环节的结果做出来，再谈推广</b>。</div></div>
+    </div>
+  </div>
+</section>
+
+
+
+<div class="foot">
+  <span>王雪欣 · 西南财经大学资产评估硕士 · 2027 年 6 月毕业</span>
+  <span>18380314941 · 18380314941@163.com</span>
+</div>
+
+</body>
+</html>

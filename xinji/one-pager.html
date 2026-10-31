@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>心迹 TRACE · 一页项目速览</title>
+<style>
+@font-face{font-family:'NotoSerifSC';src:url('assets/fonts/NotoSerifSC-600.ttf') format('truetype');font-weight:600;font-display:swap}
+@font-face{font-family:'NotoSerifSC';src:url('assets/fonts/NotoSerifSC-400.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'NotoSansSC';src:url('assets/fonts/NotoSansSC-400.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'NotoSansSC';src:url('assets/fonts/NotoSansSC-600.ttf') format('truetype');font-weight:600;font-display:swap}
+:root{--paper:#F3EDE1;--ink:#211E19;--soft:#6A6357;--faint:#9A9183;--line:rgba(33,30,25,.16);--clay:#B45B3C;--sage:#46523F;--serif:'NotoSerifSC',serif;--sans:'NotoSansSC',sans-serif;--mono:'Cascadia Mono',Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#DCD3C3;font-family:var(--sans);color:var(--ink);font-size:8.6pt;line-height:1.65;display:flex;justify-content:center;padding:24px 0}
+.page{width:210mm;height:297mm;background:var(--paper);padding:13mm 14mm 10mm;position:relative;overflow:hidden;box-shadow:0 20px 60px -30px rgba(0,0,0,.45);display:flex;flex-direction:column}
+.page::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:3mm;position:relative;z-index:1}
+.brand{font-family:var(--serif);font-size:15pt;letter-spacing:.08em;display:flex;align-items:baseline;gap:2.5mm}
+.brand i{width:2mm;height:2mm;border-radius:50%;background:var(--clay);display:block;transform:translateY(-.6mm)}
+.brand span{font-family:var(--mono);font-size:6pt;letter-spacing:.2em;color:var(--faint)}
+.tag{font-family:var(--mono);font-size:6pt;letter-spacing:.18em;color:var(--faint)}
+.intro{display:grid;grid-template-columns:1fr 74mm;gap:7mm;padding:6mm 0 4mm;position:relative;z-index:1}
+.kicker{font-family:var(--mono);font-size:5.8pt;letter-spacing:.2em;color:var(--faint)}
+h1{font-family:var(--serif);font-size:48pt;line-height:.95;font-weight:600;margin:2mm 0 1.5mm;letter-spacing:.02em}
+.sub{font-family:var(--serif);font-size:13.5pt;line-height:1.5;color:var(--ink);max-width:110mm}
+.sub em{font-style:normal;color:var(--clay);border-bottom:1px solid rgba(180,91,60,.4)}
+.lede{font-size:7.6pt;line-height:1.7;color:var(--soft);margin-top:2.5mm;max-width:112mm}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:1mm 5mm;margin-top:3.5mm;padding-top:2.5mm;border-top:1px solid var(--line)}
+.meta div b{display:block;font-family:var(--mono);font-size:5.4pt;letter-spacing:.12em;color:var(--faint);font-weight:400}
+.meta div span{font-size:7pt;line-height:1.5}
+.hero{width:74mm;height:60mm;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.hero img{width:66mm;max-width:none;margin-top:0}
+.rule{height:1px;background:var(--line);margin:1mm 0 4mm}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;position:relative;z-index:1}
+h2{font-family:var(--mono);font-size:5.8pt;letter-spacing:.18em;color:var(--clay);font-weight:400;margin-bottom:2mm;text-transform:uppercase}
+.block p{font-size:7.4pt;line-height:1.7;color:var(--soft);margin-bottom:1.5mm}
+.block b{color:var(--ink);font-weight:600}
+ul{list-style:none}
+li{font-size:7.3pt;line-height:1.6;color:var(--soft);padding-left:3mm;position:relative;margin-bottom:1mm}
+li::before{content:"";position:absolute;left:0;top:1.4mm;width:1.1mm;height:1.1mm;border-radius:50%;background:var(--clay);opacity:.7}
+.bottom{display:grid;grid-template-columns:1.25fr .75fr;gap:6mm;margin-top:5mm;padding-top:4mm;border-top:1px solid var(--line);position:relative;z-index:1}
+.tech-list li::before{background:var(--sage)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:2mm}
+.metric{border:1px solid var(--line);border-radius:2mm;padding:2.2mm 2.4mm;background:rgba(251,247,238,.55)}
+.metric b{display:block;font-family:var(--serif);font-size:17pt;line-height:1;font-weight:600}
+.metric span{display:block;font-size:5.9pt;color:var(--faint);margin-top:.8mm}
+footer{margin-top:auto;padding-top:3mm;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:var(--mono);font-size:5.6pt;letter-spacing:.08em;color:var(--faint);position:relative;z-index:1}
+footer b{color:var(--soft);font-weight:400}
+.screens{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm;margin-top:3mm;padding-top:3mm;border-top:1px solid var(--line);position:relative;z-index:1}
+.screen{text-align:center}
+.screen img{width:33mm;max-width:100%;margin:0 auto;border-radius:2mm;border:1.2mm solid #141310;background:#141310}
+.screen span{display:block;font-family:var(--mono);font-size:5.4pt;letter-spacing:.1em;color:var(--faint);margin-top:1.4mm}
+@media print{@page{size:A4;margin:0}body{background:#fff;padding:0;display:block}.page{box-shadow:none;margin:0}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="brand"><i></i>心迹<span>TRACE</span></div>
+    <div class="tag">ONE-PAGER · 2026.10</div>
+  </header>
+
+  <section class="intro">
+    <div>
+      <div class="kicker">PERSONAL PROJECT · PRODUCT DESIGN / INTERACTION / FLUTTER</div>
+      <h1>心迹</h1>
+      <p class="sub">把情绪记录，变成一件<em>可以做完</em>的小事。</p>
+      <p class="lede">面向 18–28 岁年轻人的情绪日记与自我关怀产品。从公开研究、竞品拆解、产品定义、交互设计，到 Flutter MVP、加密本地库与 API 契约，独立完成。核心不是“记得更多”，而是 3 秒记下、30 秒看懂、5 分钟做点什么。</p>
+      <div class="meta">
+        <div><b>角色</b><span>产品设计 / 交互 / Flutter / 研究</span></div>
+        <div><b>时间</b><span>2026.10 · 4 周</span></div>
+        <div><b>交付</b><span>案例 · 原型 · Flutter MVP · API</span></div>
+        <div><b>验证</b><span>6 单测 / 0 analyze issue</span></div>
+      </div>
+    </div>
+    <div class="hero"><img src="assets/img/hero-stack.png" alt="心迹三个核心界面"></div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="grid3">
+    <div class="block">
+      <h2>问题 / Problem</h2>
+      <p>市场不缺记录工具，也不缺疗愈内容。缺的是从记录到行动的那一步。</p>
+      <p><b>18–24 岁</b>抑郁水平在各年龄组最高；<b>6.5%</b> 成年人有 3 个以上持续症状；仅 <b>59%</b> 觉得心理咨询便利。</p>
+      <p>三个断点：记录门槛、分析不可解释、推荐不合时宜。</p>
+    </div>
+    <div class="block">
+      <h2>方案 / Solution</h2>
+      <p><b>记录 → 理解 → 行动 → 复评</b>的最小闭环，而不是又一个树洞或内容库。</p>
+      <ul>
+        <li>3 秒记录：点天气即存，文字/语音是可选增强。</li>
+        <li>证据化洞察：样本、反例、lift、95% CI，只讲关联。</li>
+        <li>闭环推荐：按情绪 × 场景 × 时长给 1/5/15 分钟动作。</li>
+      </ul>
+    </div>
+    <div class="block">
+      <h2>关键设计 / Decisions</h2>
+      <ul>
+        <li><b>不做开放式 AI 陪伴</b>：只做反思卡，规避依赖与合规风险。</li>
+        <li><b>前 12 个月不做社区</b>：隐私定位与内容安全成本不支持。</li>
+        <li><b>急救入口常驻</b>：12356、联系人、60 秒着陆、安全计划。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="bottom">
+    <div class="block">
+      <h2>技术 / Engineering</h2>
+      <ul class="tech-list">
+        <li><b>Flutter + Hive CE</b>：整库 AES-256，主密钥在 Keychain/Keystore；笔记 AES-GCM 预留 E2EE 同步。</li>
+        <li><b>InsightEngine</b>：Beta(1,1) 收缩 + Bootstrap 1000 次 + 多重检验；33 天数据得到 lift ≈ 1.83，CI 1.1–3.7。</li>
+        <li><b>OpenAPI 3.0</b>：幂等写入、增量拉取、软删除、危机资源独立命名空间。</li>
+        <li><b>可运行</b>：Flutter Web 构建成功；9 个界面 Playwright 验收；0 console error；本地数据刷新后仍在。</li>
+      </ul>
+    </div>
+    <div>
+      <h2>验证 / Evidence</h2>
+      <div class="metrics">
+        <div class="metric"><b>6/6</b><span>单元测试通过</span></div>
+        <div class="metric"><b>0</b><span>analyze issue</span></div>
+        <div class="metric"><b>9</b><span>浏览器验收界面</span></div>
+        <div class="metric"><b>1.8×</b><span>触发因素 lift</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="screens">
+    <div class="screen"><img src="assets/img/home.png" alt="今天页"><span>TODAY / 3 秒记录</span></div>
+    <div class="screen"><img src="assets/img/insights.png" alt="洞察页"><span>INSIGHTS / 证据卡</span></div>
+    <div class="screen"><img src="assets/img/reflection.png" alt="反思卡"><span>REFLECTION / 先接住</span></div>
+  </section>
+
+  <footer>
+    <div><b>案例 / 原型 / 源码</b> 可应要求提供</div>
+    <div>RESEARCH · PRODUCT · INTERACTION · FLUTTER</div>
+  </footer>
+</div>
+</body>
+</html>

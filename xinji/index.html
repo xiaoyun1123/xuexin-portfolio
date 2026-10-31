@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>心迹 TRACE · 情绪日记与自我关怀 / 项目案例</title>
+<meta name="description" content="心迹：把情绪记录变成可解释、可行动的日常闭环。产品研究、交互设计、Flutter MVP 与 API 契约的项目案例。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="心迹 TRACE · 情绪日记与自我关怀">
+<meta property="og:description" content="把情绪记录，变成一件可以做完的小事。研究、产品、交互、Flutter MVP 与 API 契约。">
+<meta property="og:image" content="assets/img/home.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+/* ---------- fonts ---------- */
+@font-face{font-family:'NotoSerifSC';src:url('assets/fonts/NotoSerifSC-600.ttf') format('truetype');font-weight:600;font-display:swap}
+@font-face{font-family:'NotoSerifSC';src:url('assets/fonts/NotoSerifSC-400.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'NotoSansSC';src:url('assets/fonts/NotoSansSC-400.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'NotoSansSC';src:url('assets/fonts/NotoSansSC-600.ttf') format('truetype');font-weight:600;font-display:swap}
+
+/* ---------- tokens ---------- */
+:root{
+  --paper:#F3EDE1; --paper2:#EAE1D1; --card:#FBF7EE;
+  --ink:#211E19; --soft:#6A6357; --faint:#9A9183;
+  --line:rgba(33,30,25,.15); --line2:rgba(33,30,25,.08);
+  --clay:#B45B3C; --sage:#6E7C64; --sage2:#46523F; --amber:#C6953B;
+  --serif:'NotoSerifSC','Songti SC',STSong,serif;
+  --sans:'NotoSansSC','PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'Cascadia Mono','SFMono-Regular',Consolas,monospace;
+  --max:1180px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.85;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(180,91,60,.18)}
+a{color:inherit}
+img{display:block;max-width:100%}
+button{font:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 34px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.serif{font-family:var(--serif)}
+
+/* ---------- atmosphere ---------- */
+.bg{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.bg svg{position:absolute;width:100%;height:100%;opacity:.55}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---------- topbar ---------- */
+.topbar{position:sticky;top:0;z-index:30;background:rgba(243,237,225,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line2)}
+.topbar .inner{max-width:var(--max);margin:0 auto;padding:0 34px;height:58px;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:baseline;gap:9px;text-decoration:none;font-family:var(--serif);font-size:18px;letter-spacing:.06em}
+.brand i{width:7px;height:7px;border-radius:50%;background:var(--clay);display:block;transform:translateY(-2px)}
+.brand span{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--faint)}
+.back{font-size:10px;letter-spacing:.06em;color:var(--faint);text-decoration:none;white-space:nowrap;margin-right:2px}
+.back:hover{color:var(--clay)}
+.nav{display:flex;gap:20px;margin-left:auto}
+.nav a{text-decoration:none;font-size:10.5px;letter-spacing:.08em;color:var(--soft);transition:.2s}
+.nav a:hover{color:var(--clay)}
+.pdf{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:7px 13px;text-decoration:none;font-size:10px;letter-spacing:.08em;white-space:nowrap;transition:.2s}
+.pdf:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ---------- hero ---------- */
+.hero{max-width:var(--max);margin:0 auto;padding:54px 34px 66px;display:grid;grid-template-columns:1.02fr .98fr;gap:40px;align-items:center;min-height:calc(100vh - 58px)}
+.kicker{font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;color:var(--faint);text-transform:uppercase}
+.hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(72px,10vw,132px);line-height:.95;letter-spacing:.01em;margin:20px 0 10px;position:relative}
+.hero h1 span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.5em;color:var(--faint);margin-top:16px;font-weight:400}
+.hero-sub{font-family:var(--serif);font-size:clamp(20px,2.2vw,28px);line-height:1.6;font-weight:400;margin:18px 0 14px;max-width:520px}
+.hero-sub em{font-style:normal;color:var(--clay);border-bottom:1px solid rgba(180,91,60,.4);padding-bottom:2px}
+.lede{font-size:12.5px;line-height:2;color:var(--soft);max-width:480px}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 26px;margin:28px 0 0;padding-top:20px;border-top:1px solid var(--line2);max-width:520px}
+.meta-grid div b{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);font-weight:400;margin-bottom:3px}
+.meta-grid div span{font-size:11.5px;color:var(--ink);line-height:1.6}
+.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:26px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 19px;font-size:11px;letter-spacing:.06em;text-decoration:none;border:1px solid var(--line);color:var(--soft);transition:.2s}
+.btn:hover{border-color:var(--ink);color:var(--ink);transform:translateY(-1px)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.primary:hover{background:#000;color:var(--paper)}
+.scroll{display:flex;align-items:center;gap:8px;margin-top:34px;font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:var(--faint)}
+.scroll i{display:block;width:1px;height:26px;background:var(--line);position:relative;overflow:hidden}
+.scroll i::after{content:"";position:absolute;top:-26px;left:0;width:1px;height:26px;background:var(--clay);animation:drop 2.4s infinite}
+@keyframes drop{0%{top:-26px}55%,100%{top:26px}}
+
+/* phone composition */
+.hero-visual{position:relative;height:600px;display:flex;align-items:center;justify-content:center}
+.phone-stack{position:relative;width:100%;height:100%}
+.phone{position:absolute;background:#141310;border-radius:38px;padding:8px;box-shadow:0 30px 60px -30px rgba(41,32,20,.55),0 10px 20px -12px rgba(41,32,20,.35);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.phone img{width:100%;border-radius:31px;display:block}
+.phone.p1{width:214px;left:2%;top:92px;transform:rotate(-7deg);opacity:.94}
+.phone.p2{width:256px;left:50%;top:38px;transform:translateX(-50%);z-index:3}
+.phone.p3{width:214px;right:2%;top:112px;transform:rotate(7deg);opacity:.94}
+.phone:hover{transform:rotate(0) translateY(-6px)}
+.phone.p2:hover{transform:translateX(-50%) translateY(-6px)}
+.float-tag{position:absolute;z-index:5;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--soft);box-shadow:0 6px 14px -10px rgba(0,0,0,.4)}
+.float-tag.a{left:0;top:38px}.float-tag.b{right:0;top:60px}.float-tag.c{left:50%;top:2px;transform:translateX(-50%)}
+.phone-note{position:absolute;left:50%;bottom:0;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:var(--faint);white-space:nowrap}
+
+/* ---------- chapters ---------- */
+.chapter{border-top:1px solid var(--line);padding:76px 0 80px;position:relative}
+.chapter .inner{max-width:var(--max);margin:0 auto;padding:0 34px;display:grid;grid-template-columns:88px 1fr;gap:24px}
+.chnum{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--clay);padding-top:12px}
+.chhead h2{font-family:var(--serif);font-weight:600;font-size:clamp(30px,3.6vw,46px);line-height:1.3;letter-spacing:.01em;max-width:760px}
+.chhead .dek{font-size:12.5px;line-height:2;color:var(--soft);max-width:620px;margin-top:16px}
+.content{margin-top:38px;max-width:980px}
+.section-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 30px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 17px 16px;min-height:150px;display:flex;flex-direction:column}
+.stat b{font-family:var(--serif);font-size:38px;line-height:1;font-weight:600;letter-spacing:-.02em}
+.stat b small{font-family:var(--sans);font-size:12px;font-weight:400;letter-spacing:0}
+.stat p{font-size:10.5px;line-height:1.7;color:var(--soft);margin-top:auto}
+.stat span{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--faint);display:block;margin-top:8px}
+
+/* gap cards */
+.gaps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.gap{border:1px solid var(--line);border-radius:16px;padding:16px;background:rgba(251,247,238,.55)}
+.gap .n{font-family:var(--mono);font-size:9px;color:var(--clay);letter-spacing:.12em}
+.gap h3{font-family:var(--serif);font-size:16px;font-weight:600;margin:8px 0 6px}
+.gap p{font-size:10px;line-height:1.75;color:var(--soft)}
+
+.callout{border-left:2px solid var(--clay);padding:2px 0 2px 18px;margin:28px 0;max-width:760px}
+.callout p{font-family:var(--serif);font-size:18px;line-height:1.8}
+.callout span{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--faint);margin-top:8px}
+
+/* table */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:rgba(251,247,238,.5)}
+table{width:100%;border-collapse:collapse;font-size:10.5px;min-width:720px}
+th{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--faint);font-weight:400;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+td{padding:12px 14px;border-bottom:1px solid var(--line2);vertical-align:top;line-height:1.7;color:var(--soft)}
+tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+td .tag{display:inline-block;font-family:var(--mono);font-size:7.5px;letter-spacing:.06em;border:1px solid var(--line);border-radius:999px;padding:1px 6px;margin-left:4px;color:var(--faint);font-weight:400}
+
+/* principles */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.principle{background:var(--card);padding:17px 16px;min-height:132px}
+.principle .n{font-family:var(--mono);font-size:8.5px;color:var(--clay);letter-spacing:.12em}
+.principle h3{font-family:var(--serif);font-size:15px;font-weight:600;margin:8px 0 5px;line-height:1.5}
+.principle p{font-size:9.5px;line-height:1.7;color:var(--soft)}
+
+/* loop */
+.loop{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0 0}
+.loop div{border:1px solid var(--line);border-radius:14px;padding:13px 12px;background:rgba(251,247,238,.55);position:relative}
+.loop div:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:10px;color:var(--faint);z-index:2}
+.loop b{display:block;font-family:var(--mono);font-size:8px;color:var(--clay);letter-spacing:.1em;margin-bottom:6px}
+.loop span{font-size:10.5px;line-height:1.6;color:var(--ink)}
+
+/* scope */
+.scope{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.scope div{border:1px dashed rgba(180,91,60,.35);border-radius:14px;padding:14px;background:rgba(180,91,60,.03)}
+.scope b{display:block;font-family:var(--mono);font-size:8px;color:var(--clay);letter-spacing:.1em;margin-bottom:5px}
+.scope p{font-size:9.5px;line-height:1.7;color:var(--soft)}
+
+/* design blocks */
+.design{border-top:1px solid var(--line);padding:34px 0 4px;margin-top:30px}
+.design:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.design-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.design-head .n{font-family:var(--mono);font-size:9px;color:var(--clay);letter-spacing:.12em}
+.design-head h3{font-family:var(--serif);font-size:24px;font-weight:600}
+.design-head span{font-size:9.5px;color:var(--faint)}
+.design-body{display:grid;grid-template-columns:1fr 1.05fr;gap:32px;align-items:start;margin-top:18px}
+.design-body.flip{grid-template-columns:1.05fr 1fr}
+.design-copy p{font-size:11.5px;line-height:1.95;color:var(--soft);margin-bottom:12px}
+.design-copy ul{list-style:none;margin:0}
+.design-copy li{font-size:10.5px;line-height:1.8;color:var(--soft);padding-left:13px;position:relative;margin-bottom:6px}
+.design-copy li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--clay);opacity:.65}
+.shot{position:relative;background:#141310;border-radius:28px;padding:7px;box-shadow:0 24px 40px -30px rgba(41,32,20,.6)}
+.shot img{border-radius:22px;width:100%}
+.design-body>.shot{max-width:300px;margin:0 auto}
+.shot .cap{position:absolute;left:14px;bottom:-24px;font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--faint)}
+.shot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.shot-grid .shot:nth-child(2){margin-top:26px}
+.note-card{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card);margin-top:14px}
+.note-card b{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--clay);font-weight:400;margin-bottom:4px}
+.note-card p{font-size:10px;line-height:1.75;color:var(--soft);margin:0}
+
+/* dark code */
+.code{background:#1B1913;color:#EDE5D6;border-radius:16px;padding:16px 17px;font-family:var(--mono);font-size:9.5px;line-height:1.9;overflow-x:auto;margin:12px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.code .c{color:#8E8678}.code .k{color:#D6A46A}.code .s{color:#A9B89A}
+
+/* architecture */
+.arch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;align-items:stretch;margin-top:8px}
+.arch-col{border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(251,247,238,.55);position:relative}
+.arch-col::after{content:"→";position:absolute;right:-16px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:12px;color:var(--faint)}
+.arch-col:last-child::after{display:none}
+.arch-col h4{font-family:var(--mono);font-size:8px;letter-spacing:.14em;color:var(--faint);font-weight:400;margin-bottom:9px}
+.arch-box{border:1px solid var(--line2);border-radius:9px;padding:8px 9px;font-size:9.5px;line-height:1.55;margin-bottom:6px;background:var(--card);color:var(--ink)}
+.arch-box small{display:block;font-family:var(--mono);font-size:7.5px;color:var(--faint);margin-top:2px}
+
+/* verification */
+.verify{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:10px}
+.verify div{background:var(--card);padding:15px 13px}
+.verify b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.1}
+.verify span{display:block;font-size:8.5px;color:var(--faint);margin-top:4px;line-height:1.5}
+.verify-table{width:100%;border-collapse:collapse;font-size:10px;margin-top:14px}
+.verify-table td{padding:8px 0;border-bottom:1px solid var(--line2);color:var(--soft)}
+.verify-table td:last-child{text-align:right;font-family:var(--mono);font-size:8.5px;color:var(--sage2)}
+.verify-table tr:last-child td{border-bottom:0}
+
+/* lists */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.list{list-style:none}
+.list li{font-size:10.5px;line-height:1.8;color:var(--soft);padding-left:15px;position:relative;margin-bottom:7px}
+.list li::before{content:"✓";position:absolute;left:0;top:0;font-family:var(--mono);font-size:9px;color:var(--sage2)}
+.list.todo li::before{content:"○";color:var(--faint)}
+
+/* video */
+.demo{margin-top:20px;display:grid;grid-template-columns:.8fr 1.2fr;gap:26px;align-items:start}
+.demo video{width:280px;max-width:100%;border-radius:22px;border:7px solid #141310;background:#141310;box-shadow:0 24px 50px -34px rgba(0,0,0,.6);margin:0 auto}
+.demo .copy p{font-size:11px;line-height:1.9;color:var(--soft)}
+.demo .copy{padding-top:10px}
+.demo .copy .label{margin-bottom:8px}
+
+/* footnotes */
+.sources{margin-top:24px;padding-top:14px;border-top:1px solid var(--line2)}
+.sources p{font-size:8.5px;line-height:1.8;color:var(--faint);margin-bottom:4px}
+.sources a{color:var(--soft);text-decoration:underline;text-underline-offset:2px}
+.print-cover-note{display:none}
+
+/* footer */
+.footer{border-top:1px solid var(--line);padding:34px 34px 40px;max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.footer .f-title{font-family:var(--serif);font-size:22px}
+.footer .f-meta{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--faint);line-height:2;text-align:right}
+.footer a{text-decoration:none;border-bottom:1px solid var(--line);color:var(--soft)}
+
+/* responsive */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;min-height:auto;padding-top:38px}
+  .hero-visual{height:520px;order:2}
+  .phone.p1{width:180px;left:0}.phone.p2{width:220px}.phone.p3{width:180px;right:0}
+  .chapter .inner{grid-template-columns:1fr;gap:0}
+  .chnum{padding:0 0 8px}
+  .design-body,.design-body.flip,.demo{grid-template-columns:1fr}
+  .stats,.gaps,.principles,.scope,.arch,.verify{grid-template-columns:1fr 1fr}
+  .loop{grid-template-columns:1fr 1fr}
+  .loop div::after{display:none}
+  .nav{display:none}
+  .pdf{margin-left:auto}
+}
+@media (max-width:620px){
+  .wrap,.topbar .inner,.chapter .inner,.hero{padding-left:20px;padding-right:20px}
+  .hero h1{font-size:76px}
+  .hero h1 span{display:none}
+  .hero-visual{height:430px}
+  .phone.p1,.phone.p3{display:none}
+  .phone.p2{width:230px}
+  .stats,.gaps,.principles,.scope,.arch,.verify,.shot-grid,.two-col{grid-template-columns:1fr}
+  .footer{padding:26px 20px 34px}
+  .footer .f-meta{text-align:left}
+  .topbar .pdf{padding:6px 10px}
+  .brand span{display:none}
+}
+
+/* ---------- print ---------- */
+@media print{
+  @page{size:A4;margin:15mm 13mm}
+  body{background:#fff;color:#1b1914;font-size:9.8pt;line-height:1.7}
+  .bg,.grain,.topbar,.hero-actions,.scroll,.no-print,video,.float-tag,.phone-note{display:none!important}
+  .wrap,.topbar .inner,.chapter .inner,.hero{max-width:none;padding:0}
+  .hero{display:block;min-height:0;padding:0 0 8mm;border-bottom:1px solid #ddd}
+  .hero h1{font-size:44pt;margin:4mm 0 2mm}
+  .hero h1 span{font-size:7pt;margin-top:2mm}
+  .hero-sub{font-size:15pt;margin:3mm 0 2mm;max-width:none}
+  .lede{font-size:9pt;max-width:none}
+  .meta-grid{grid-template-columns:1fr 1fr 1fr 1fr;gap:3mm;margin-top:4mm;padding-top:3mm}
+  .meta-grid div span{font-size:8pt}
+  .hero-visual{height:auto;display:flex;margin-top:5mm}
+  .phone-stack{height:auto;display:flex;justify-content:center}
+  .phone{position:static!important;transform:none!important;width:36mm!important;box-shadow:none;border-radius:5mm;padding:1.2mm;background:#141310}
+  .phone img{border-radius:4mm}
+  .phone.p1,.phone.p3{display:none}
+  .phone.p2{margin:0 auto}
+  .chapter{padding:7mm 0 6mm;border-top:1px solid #ddd;break-inside:auto}
+  #problem,#landscape,#product,#design,#tech,#results{break-before:page}
+  .stats,.gaps,.principles,.scope,.table-wrap,.arch,.verify,.two-col,.design{break-inside:avoid}
+  .verify{grid-template-columns:repeat(4,1fr)!important}
+  .print-cover-note{display:block;margin-top:12mm;padding-top:4mm;border-top:1px solid #ddd;font-family:var(--mono);font-size:7pt;letter-spacing:.08em;color:#666;line-height:2}
+  .print-cover-note b{color:#211E19;font-weight:400}
+  .chapter .inner{display:block}
+  .chnum{font-size:7pt;padding:0 0 1mm}
+  .chhead h2{font-size:22pt;line-height:1.25;max-width:none}
+  .chhead .dek{font-size:8.5pt;max-width:none;margin-top:2mm}
+  .content{margin-top:4mm;max-width:none}
+  .stats{grid-template-columns:repeat(3,1fr);gap:2mm;margin:2mm 0 4mm}
+  .stat{min-height:0;padding:3mm;border-radius:3mm}
+  .stat b{font-size:24pt}
+  .stat p{font-size:7.5pt}
+  .gaps,.principles,.scope,.arch,.verify{grid-template-columns:repeat(3,1fr);gap:2mm}
+  .gap,.principle,.scope div,.arch-col,.verify div{padding:3mm;border-radius:3mm;min-height:0}
+  .principle h3,.gap h3{font-size:9.5pt}
+  .principle p,.gap p{font-size:7.5pt}
+  .loop{grid-template-columns:repeat(5,1fr);gap:1.5mm}
+  .loop div{padding:2.5mm}
+  .loop div::after{display:none}
+  .design{padding:4mm 0 2mm;margin-top:4mm;break-inside:avoid}
+  .design-head h3{font-size:15pt}
+  .design-body,.design-body.flip{grid-template-columns:1fr 1fr;gap:5mm;margin-top:3mm}
+  .design-body>.shot{max-width:58mm;margin:0 auto}
+  .shot-grid .shot{max-width:100%}
+  .demo{display:none!important}
+  .design-copy p{font-size:8pt;line-height:1.65}
+  .design-copy li{font-size:7.5pt}
+  .shot{padding:1.2mm;border-radius:4mm;box-shadow:none;break-inside:avoid}
+  .shot img{border-radius:3mm}
+  .shot .cap{display:none}
+  .shot-grid{gap:3mm}
+  .note-card{padding:2.5mm;margin-top:2mm}
+  .note-card p{font-size:7pt}
+  .table-wrap{overflow:visible;border-radius:2mm;break-inside:avoid}
+  table{min-width:0;font-size:7.3pt}
+  th,td{padding:2mm 2.2mm}
+  .callout{margin:3mm 0}
+  .callout p{font-size:11pt}
+  .two-col{grid-template-columns:1fr 1fr;gap:5mm}
+  .list li{font-size:7.8pt}
+  .verify b{font-size:16pt}
+  .verify span{font-size:6.5pt}
+  .verify-table{font-size:7.5pt;display:none!important}
+  .code{background:#F3EFE6;color:#211E19;border:1px solid #ddd;font-size:7pt;padding:3mm;break-inside:avoid}
+  .code .c{color:#777}.code .k{color:#8a4b2e}.code .s{color:#4f6247}
+  .sources p{font-size:6.5pt}
+  .footer{padding:5mm 0 0;border-top:1px solid #ddd;display:block}
+  .footer .f-meta{text-align:left;font-size:6.5pt}
+  h2,h3{break-after:avoid}
+  .design,.stat,.gap,.principle,.shot,.arch-col,.verify,.callout{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <g fill="none" stroke="#211E19" stroke-width="1" opacity=".11">
+      <path d="M-100 620C100 540 240 690 420 630S760 500 940 580s330 60 600-40"/>
+      <path d="M-100 675C100 595 240 745 420 685S760 555 940 635s330 60 600-40"/>
+      <path d="M-100 730C100 650 240 800 420 740S760 610 940 690s330 60 600-40"/>
+      <ellipse cx="1180" cy="760" rx="260" ry="150"/>
+      <ellipse cx="1180" cy="760" rx="205" ry="116"/>
+      <ellipse cx="1180" cy="760" rx="150" ry="82"/>
+      <path d="M980-40c40 120 130 160 250 150s230 30 280 120"/>
+      <path d="M1030-40c40 120 130 160 250 150s230 30 280 120"/>
+    </g>
+  </svg>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="inner">
+    <a class="back" href="../portfolio.html">← 返回作品集</a>
+    <a class="brand" href="#top"><i></i>心迹<span>TRACE / CASE STUDY</span></a>
+    <nav class="nav">
+      <a href="#problem">问题</a>
+      <a href="#landscape">竞品</a>
+      <a href="#product">产品</a>
+      <a href="#design">设计</a>
+      <a href="#tech">技术</a>
+      <a href="#results">结果</a>
+    </nav>
+    <a class="pdf" href="xinji-case.pdf">PDF ↓</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-copy">
+    <p class="kicker">PERSONAL PROJECT · 2026.10 · 4 WEEKS</p>
+    <h1>心迹<span>TRACE — A MOOD JOURNAL THAT ACTUALLY HELPS</span></h1>
+    <p class="hero-sub">把情绪记录，变成一件<em>可以做完</em>的小事。</p>
+    <p class="lede">
+      面向 18–28 岁年轻人的情绪日记与自我关怀产品。从公开研究、竞品拆解、产品定义、交互设计，
+      到 Flutter MVP、加密本地库与 API 契约，独立完成。核心不是“记得更多”，而是让人
+      <b>3 秒记下、30 秒看懂、5 分钟做点什么</b>。
+    </p>
+    <div class="meta-grid">
+      <div><b>角色</b><span>产品设计 / 交互 / Flutter / 研究</span></div>
+      <div><b>时间</b><span>2026.10，4 周</span></div>
+      <div><b>交付</b><span>案例 · 可点击原型 · Flutter MVP · API</span></div>
+      <div><b>验证</b><span>6 单测 / 0 analyze issue / 0 console error</span></div>
+    </div>
+    <div class="hero-actions">
+      <a class="btn primary" href="prototype/index.html">打开可点击原型 →</a>
+      <a class="btn" href="#demo">看 12 秒演示</a>
+      <a class="btn" href="xinji-case.pdf">下载案例 PDF</a>
+    </div>
+    <div class="scroll"><i></i>SCROLL TO READ</div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="phone-stack">
+      <span class="float-tag a">02 / 洞察</span>
+      <span class="float-tag b">03 / 记录</span>
+      <span class="float-tag c">01 / 今天</span>
+      <figure class="phone p1"><img src="assets/img/insights.png" alt="洞察页：情绪曲线与触发因素证据卡"></figure>
+      <figure class="phone p2"><img src="assets/img/home.png" alt="今天页：一键情绪记录与此刻推荐"></figure>
+      <figure class="phone p3"><img src="assets/img/record.png" alt="记录页：情绪、强度、标签与一句话"></figure>
+      <span class="phone-note">FLUTTER MVP · LOCAL-FIRST · AES-256</span>
+    </div>
+  </div>
+  <div class="print-cover-note">
+    <b>CASE STUDY / 2026.10</b><br>
+    研究 → 产品定义 → 交互 → Flutter MVP → API 契约<br>
+    9 页 · 可点击原型 · 一页速览 · 6 个单元测试
+  </div>
+</section>
+
+<!-- ================= 01 PROBLEM ================= -->
+<section class="chapter" id="problem">
+  <div class="inner">
+    <div class="chnum">01 / PROBLEM</div>
+    <div>
+      <div class="chhead">
+        <h2>市场不缺记录工具，<br>也不缺疗愈内容。<br>缺的是“然后呢”。</h2>
+        <p class="dek">
+          年轻人面对学业、职场、社交压力，情绪波动频繁，但专业心理咨询成本高、预约难。
+          现有产品大多停在“记录”或“内容”一端，真正从记录走到行动的路径，是断的。
+        </p>
+      </div>
+
+      <div class="content">
+        <div class="stats">
+          <div class="stat"><b>18–24<small> 岁</small></b><p>抑郁水平在各年龄组中最高。青年群体是情绪波动最集中、也最需要低门槛工具的人。</p><span>中科院心理所《中国国民心理健康发展报告 2023–2024》</span></div>
+          <div class="stat"><b>6.5<small>%</small></b><p>成年人有 3 个及以上持续抑郁症状；同时仅 59% 的人觉得心理咨询便利。</p><span>同上 · 2024 年调查</span></div>
+          <div class="stat"><b>104<small> 亿</small></b><p>2025 年泛心理健康服务约 104 亿元，CAGR 约 27%；更大的情绪消费市场预计突破 2 万亿。</p><span>中邮证券 / 新华网引述报告</span></div>
+        </div>
+
+        <div class="section-label">三个断点</div>
+        <div class="gaps">
+          <div class="gap"><span class="n">GAP 01</span><h3>记录门槛高</h3><p>要选标签、写长文、坚持打卡。用户想要的是“放下来”，不是完成一篇作业。</p></div>
+          <div class="gap"><span class="n">GAP 02</span><h3>分析不可解释</h3><p>只有曲线和百分比，没有“为什么”。用户不知道哪个因素值得动，也不敢相信玄学结论。</p></div>
+          <div class="gap"><span class="n">GAP 03</span><h3>推荐不合时宜</h3><p>内容库很大，但此刻没力气、只有 1 分钟、在工位上——大部分推荐都用不上。</p></div>
+        </div>
+
+        <div class="callout">
+          <p>“用户不需要更多功能。他们需要更少的负担、更懂我的分析，以及现在就能做的一件事。”</p>
+          <span>研究假设 · 待 8–12 人可用性测试验证</span>
+        </div>
+
+        <p class="section-label">研究边界</p>
+        <p style="font-size:10.5px;color:var(--soft);max-width:760px">
+          本项目以公开报告、应用商店评论、竞品拆解与监管文件为桌面研究基础，尚未完成大规模一手访谈。
+          因此把关键判断写成 5 个可验证假设：3 秒记录能降低放弃率；证据卡能建立信任；微行动比内容库更有效；
+          隐私是采用前提；危机支持不能缺位。案例中的“结果”只报告工程与交互验证，不虚构用户增长或疗效。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 LANDSCAPE ================= -->
+<section class="chapter" id="landscape">
+  <div class="inner">
+    <div class="chnum">02 / LANDSCAPE</div>
+    <div>
+      <div class="chhead">
+        <h2>每个产品都做对了一件事，<br>但没有人把三件事连起来。</h2>
+        <p class="dek">记录、分析、干预，分别有成熟产品；把它们连成闭环，并用可解释的方式呈现，是空白。</p>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>产品</th><th>核心机制</th><th>做得好的</th><th>缺口</th></tr></thead>
+            <tbody>
+              <tr><td>Daylio</td><td>一键情绪 + 活动标签 + 统计</td><td>记录极快、可定制、数据积累感强</td><td>分析停在图表；没有干预闭环；中文本地化弱</td></tr>
+              <tr><td>How We Feel</td><td>情绪粒度（耶鲁团队）+ 四象限</td><td>情绪词汇科学、界面克制</td><td>记录负担偏重；无中文；几乎不给行动方案</td></tr>
+              <tr><td>Finch</td><td>养成宠物 + 自我关怀任务</td><td>留存极强、情感连接</td><td>游戏化可能盖过真实改变；干预浅；依赖风险</td></tr>
+              <tr><td>心岛 / Moo</td><td>情绪记录 + 匿名社区</td><td>氛围感、陪伴感、低门槛</td><td>隐私顾虑；分析弱；社区内容安全成本高</td></tr>
+              <tr><td>潮汐 / Calm</td><td>冥想、睡眠、音乐</td><td>内容质量与品牌</td><td>与“记录”割裂；推荐不依赖用户状态</td></tr>
+              <tr><td>简单心理 / 壹心理</td><td>咨询师与课程</td><td>专业供给</td><td>贵、预约难、非日常；覆盖不到“今天此刻”</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout" style="margin-top:24px">
+          <p>空白不在“再多一个功能”，而在“记录 → 理解 → 行动 → 复评”的最小闭环，以及一套用户敢信的统计口径。</p>
+          <span>竞品拆解 · 2026.10</span>
+        </div>
+
+        <div class="section-label" style="margin-top:26px">定位</div>
+        <p style="font-family:var(--serif);font-size:22px;line-height:1.7;max-width:820px">
+          给 18–28 岁、压力大但还不想走进咨询室的年轻人，一个不费力的情绪记录本、
+          一个看得懂的情绪分析师，和一个随时能开始的自我关怀工具箱。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 PRODUCT ================= -->
+<section class="chapter" id="product">
+  <div class="inner">
+    <div class="chnum">03 / PRODUCT</div>
+    <div>
+      <div class="chhead">
+        <h2>先接住，再解释，<br>最后只给一个动作。</h2>
+        <p class="dek">产品结构围绕一条主线：今天 → 记录 → 洞察 → 疗愈 → 我的。每一次交互只回答一个问题。</p>
+      </div>
+      <div class="content">
+        <div class="section-label">六条产品原则</div>
+        <div class="principles">
+          <div class="principle"><span class="n">01</span><h3>3 秒能记，30 秒能懂，5 分钟能缓</h3><p>任何核心动作都不能比“打开手机”更复杂。</p></div>
+          <div class="principle"><span class="n">02</span><h3>先接住情绪，再给建议</h3><p>建议之前先有一句共情确认，不用“你应该”。</p></div>
+          <div class="principle"><span class="n">03</span><h3>不确定就说不确定</h3><p>样本不足不展示；相关不写成因果。</p></div>
+          <div class="principle"><span class="n">04</span><h3>不做诊断、不替代治疗、不制造依赖</h3><p>明确 AI 边界，危机场景转介到现实资源。</p></div>
+          <div class="principle"><span class="n">05</span><h3>默认最小化采集</h3><p>能本地做的不到云端；记录默认只属于用户。</p></div>
+          <div class="principle"><span class="n">06</span><h3>不惩罚用户</h3><p>没有断签焦虑，没有“你不努力”的暗示。</p></div>
+        </div>
+
+        <div class="section-label" style="margin-top:28px">核心闭环</div>
+        <div class="loop">
+          <div><b>01</b><span>3 秒记录<br>情绪 + 强度</span></div>
+          <div><b>02</b><span>即时反馈<br>一句接住</span></div>
+          <div><b>03</b><span>7 天洞察<br>触发因素卡</span></div>
+          <div><b>04</b><span>微行动<br>1 / 5 / 15 分钟</span></div>
+          <div><b>05</b><span>复评<br>好一点了吗</span></div>
+        </div>
+
+        <div class="section-label" style="margin-top:28px">MVP 的“不做”</div>
+        <div class="scope">
+          <div><b>不做开放式 AI 陪伴</b><p>2026 年拟人化互动新规要求依赖预警、2 小时提醒、安全评估。MVP 只做结构化反思卡，把高风险区留到 V2。</p></div>
+          <div><b>前 12 个月不做社区</b><p>隐私定位与内容安全成本都不支持。匿名社区是增长手段，不是第一版的产品价值。</p></div>
+          <div><b>不做月视图与复杂统计</b><p>先验证“周”是否能让人看懂；更多图表不会自动带来更多行动。</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 DESIGN ================= -->
+<section class="chapter" id="design">
+  <div class="inner">
+    <div class="chnum">04 / DESIGN</div>
+    <div>
+      <div class="chhead">
+        <h2>四个关键设计，<br>把“记录”变成“完成”。</h2>
+        <p class="dek">不是四个页面，而是四个决定：降低门槛、建立信任、给出下一步、守住底线。</p>
+      </div>
+      <div class="content">
+
+        <div class="design">
+          <div class="design-head"><span class="n">4.1</span><h3>3 秒记录</h3><span>把“写日记”降到一个动作</span></div>
+          <div class="design-body">
+            <div class="design-copy">
+              <p>首页就是记录入口：五个天气符号，点一下即存。文字、语音、标签都是可选增强，不是必填。</p>
+              <ul>
+                <li>默认值聪明：按时间与历史推测场景，用户只需确认。</li>
+                <li>允许“今天还好”：一键中性记录，避免“没情绪就不记”。</li>
+                <li>补记无惩罚：没有断签红字，没有“你已放弃”的通知。</li>
+                <li>锁屏小组件是留存关键：把记录入口放在打开 App 之前。</li>
+              </ul>
+              <div class="note-card"><b>设计取舍</b><p>牺牲了“完整情绪档案”的野心，换第一次记录的成功率。深度记录放在第二层，而不是首屏。</p></div>
+            </div>
+            <figure class="shot"><img src="assets/img/home.png" alt="今天页：一键情绪记录"><figcaption class="cap">TODAY / 一键记录 · 此刻推荐 · 最近</figcaption></figure>
+          </div>
+        </div>
+
+        <div class="design">
+          <div class="design-head"><span class="n">4.2</span><h3>证据化洞察</h3><span>让用户敢信，而不是觉得被定义</span></div>
+          <div class="design-body flip">
+            <div class="shot-grid">
+              <figure class="shot"><img src="assets/img/insights.png" alt="洞察页：情绪曲线与触发因素"><figcaption class="cap">INSIGHTS / 曲线 + 证据卡</figcaption></figure>
+              <figure class="shot"><img src="assets/img/explain.png" alt="这是怎么算的：统计口径弹层"><figcaption class="cap">METHOD / 样本、CI、公式</figcaption></figure>
+            </div>
+            <div class="design-copy">
+              <p>触发因素卡不是一句“你最近很焦虑”，而是把证据摊开：多少天、多少天偏低、概率比、95% 区间、反例。</p>
+              <ul>
+                <li>以“天”为单位，同一天多条记录取均值。</li>
+                <li>Beta(1,1) 收缩，避免 1/1 这种小样本被放大。</li>
+                <li>Bootstrap 1000 次给区间；样本 &lt;5 天不展示。</li>
+                <li>文案只写“一起出现”，并明确“这不是因果”。</li>
+              </ul>
+              <div class="note-card"><b>真实数据</b><p>33 天种子数据：加班 12 天中 9 天偏低；无加班 21 天中 8 天偏低；lift ≈ 1.83，95% CI 1.1–3.7。记录一条新数据后实时重算。</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="design">
+          <div class="design-head"><span class="n">4.3</span><h3>闭环推荐</h3><span>不是内容库，是“此刻能做的一件事”</span></div>
+          <div class="design-body">
+            <div class="design-copy">
+              <p>按“情绪 × 强度 × 场景 × 可用时间 × 能量”推荐 1 / 5 / 15 分钟动作。做完不是结束，而是复评的开始。</p>
+              <ul>
+                <li>先给 1 分钟、低门槛、成功率高的动作，建立“我能做到”。</li>
+                <li>呼吸、音频、书写都有开始与结束；结束问“好一点了吗”。</li>
+                <li>连续两次“更糟”降权，不把不适合的内容硬塞给用户。</li>
+                <li>睡前不推高强度；危机状态只推安定类与转介。</li>
+              </ul>
+              <div class="note-card"><b>为什么不是“更多内容”</b><p>用户收藏了很多冥想却一次没打开。问题不是供给不足，是匹配失败。推荐必须依赖状态，而不是标签。</p></div>
+            </div>
+            <figure class="shot"><img src="assets/img/breathe.png" alt="4-7-8 呼吸引导"><figcaption class="cap">BREATHE / 真实 4-7-8 计时 · 3 轮</figcaption></figure>
+          </div>
+        </div>
+
+        <div class="design">
+          <div class="design-head"><span class="n">4.4</span><h3>安全网</h3><span>难受的时候，不能只给一句免责声明</span></div>
+          <div class="design-body flip">
+            <figure class="shot"><img src="assets/img/crisis.png" alt="情绪急救页：12356、联系人、着陆练习"><figcaption class="cap">SAFETY / 12356 · 联系人 · 60 秒着陆</figcaption></figure>
+            <div class="design-copy">
+              <p>急救入口常驻首页，不藏在二级页。危机页不锁死用户：给可执行的下一步，也允许离开。</p>
+              <ul>
+                <li>风险分级 L0–L3；L2/L3 进入安全计划与人工兜底。</li>
+                <li>12356 全国心理援助热线 + 当地资源 + 紧急联系人。</li>
+                <li>安全计划只存在本地；高危事件最小权限、单独审计。</li>
+                <li>AI 不提供诊断、药物、治疗建议；不制造排他关系。</li>
+              </ul>
+              <div class="note-card"><b>合规不是附录</b><p>2026 年《人工智能拟人化互动服务管理暂行办法》要求依赖预警、情感边界、2 小时提醒、随时退出。这些被写进了产品约束，而不是上线前才补的免责声明。</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:30px">视觉系统</div>
+        <div class="stats" style="grid-template-columns:1.2fr 1fr 1fr">
+          <div class="stat" style="min-height:120px">
+            <b style="font-size:26px;font-family:var(--serif)">情绪气象台 × 纸质手账</b>
+            <p>暖纸、墨、陶土红；宋体标题 + 等宽数据。用天气符号替代 emoji 脸，降低“被评判”的感觉。</p>
+          </div>
+          <div class="stat" style="min-height:120px">
+            <p style="margin:0 0 8px;font-size:9px;color:var(--faint)">PALETTE</p>
+            <div style="display:flex;gap:6px">
+              <span style="width:28px;height:28px;border-radius:50%;background:#F3EDE1;border:1px solid #ddd"></span>
+              <span style="width:28px;height:28px;border-radius:50%;background:#211E19"></span>
+              <span style="width:28px;height:28px;border-radius:50%;background:#B45B3C"></span>
+              <span style="width:28px;height:28px;border-radius:50%;background:#6E7C64"></span>
+              <span style="width:28px;height:28px;border-radius:50%;background:#C6953B"></span>
+            </div>
+            <p style="margin-top:10px">纸 #F3EDE1 · 墨 #211E19 · 陶土 #B45B3C · 鼠尾草 #6E7C64</p>
+          </div>
+          <div class="stat" style="min-height:120px">
+            <p style="margin:0 0 6px;font-size:9px;color:var(--faint)">TYPE</p>
+            <p style="font-family:var(--serif);font-size:22px;line-height:1.2;color:var(--ink)">今天，心里<br>是什么天气？</p>
+            <p style="font-size:9px;margin-top:8px">Noto Serif SC / Noto Sans SC</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 05 TECH ================= -->
+<section class="chapter" id="tech">
+  <div class="inner">
+    <div class="chnum">05 / TECH</div>
+    <div>
+      <div class="chhead">
+        <h2>本地优先，<br>让“私密”成为架构而不是文案。</h2>
+        <p class="dek">Flutter 客户端 + 加密本地库 + 纯 Dart 分析引擎 + OpenAPI 契约。先把一条真实链路跑通，再谈同步与 AI。</p>
+      </div>
+      <div class="content">
+        <div class="arch">
+          <div class="arch-col">
+            <h4>CLIENT / FLUTTER</h4>
+            <div class="arch-box">今天 / 记录 / 洞察 / 疗愈 / 我的</div>
+            <div class="arch-box">Hive CE + AES-256<small>整库加密</small></div>
+            <div class="arch-box">Keychain / Keystore<small>32 字节主密钥</small></div>
+            <div class="arch-box">NoteCipher<small>AES-256-GCM · 为同步预留</small></div>
+          </div>
+          <div class="arch-col">
+            <h4>DOMAIN / DART</h4>
+            <div class="arch-box">InsightEngine<small>触发因素 · 周汇总</small></div>
+            <div class="arch-box">RecommendationEngine<small>情绪 × 场景 × 时长</small></div>
+            <div class="arch-box">AppState<small>加载 / 写入 / 重算</small></div>
+            <div class="arch-box">6 个单元测试<small>算法 · 加密 · 序列化</small></div>
+          </div>
+          <div class="arch-col">
+            <h4>API / OPENAPI 3.0</h4>
+            <div class="arch-box">POST /v1/entries<small>Idempotency-Key</small></div>
+            <div class="arch-box">GET /v1/insights/weekly<small>服务端复算校验</small></div>
+            <div class="arch-box">POST /interventions/{id}/complete<small>前后情绪</small></div>
+            <div class="arch-box">E2EE 笔记<small>note_cipher + note_nonce</small></div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:28px">
+          <div>
+            <div class="section-label">触发因素不是拍脑袋</div>
+            <div class="code"><span class="c">// Beta(1,1) 收缩，避免小样本被放大</span>
+<span class="k">final</span> p1 = (nWithLow + 1) / (nWith + 2);
+<span class="k">final</span> p0 = (nWithoutLow + 1) / (nWithout + 2);
+<span class="k">final</span> lift = p1 / p0;
+
+<span class="c">// Bootstrap 1000 次 → 95% CI</span>
+<span class="c">// 样本 &lt; 5 天、CI 跨过 1 → 不展示</span>
+<span class="c">// 文案只写「一起出现」，不写因果</span></div>
+            <p style="font-size:9.5px;color:var(--faint);margin-top:8px">完整实现：<span class="mono">lib/domain/insight_engine.dart</span></p>
+          </div>
+          <div>
+            <div class="section-label">为什么本地优先</div>
+            <ul class="list">
+              <li>情绪记录是敏感个人信息，默认不上云，降低泄露面与合规成本。</li>
+              <li>离线可用，地铁、深夜、没网时也能记录。</li>
+              <li>同步是“可选增强”，不是产品能否使用的前提。</li>
+              <li>整库 AES-256 + 主密钥进系统安全区；即使拿到文件也读不出。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:26px">AI 边界</div>
+        <p style="font-size:10.5px;color:var(--soft);max-width:820px">
+          MVP 不做开放式 AI 陪伴，只做结构化抽取与反思卡。2026 年新规明确禁止诱导情感依赖、要求依赖预警与 2 小时提醒；
+          这不是“以后再说”的合规项，而是产品定位的一部分。V2 若做陪伴，必须同步完成安全评估、算法备案、未成年人隔离与退出机制。
+        </p>
+
+        <div class="section-label" style="margin-top:26px">验证</div>
+        <div class="verify">
+          <div><b>6/6</b><span>单元测试通过</span></div>
+          <div><b>0</b><span>flutter analyze issue</span></div>
+          <div><b>9</b><span>浏览器验收界面</span></div>
+          <div><b>0</b><span>console error</span></div>
+        </div>
+        <table class="verify-table">
+          <tr><td>flutter test</td><td>触发因素 · 周汇总 · JSON 往返 · AES-GCM · 推荐</td></tr>
+          <tr><td>flutter build web --release</td><td>成功 · 本地字体 + CanvasKit</td></tr>
+          <tr><td>Playwright 430×932</td><td>今天 / 洞察 / 口径 / 疗愈 / 呼吸 / 记录 / 反思 / 我的 / 急救</td></tr>
+          <tr><td>持久化</td><td>刷新后记录仍在；重置后回到 33 天种子</td></tr>
+          <tr><td>字体</td><td>静态字重子集 + 显式 fontFamily，截图无缺字框</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 06 RESULTS ================= -->
+<section class="chapter" id="results">
+  <div class="inner">
+    <div class="chnum">06 / RESULTS</div>
+    <div>
+      <div class="chhead">
+        <h2>现在能做什么，<br>以及我刻意没做什么。</h2>
+        <p class="dek">这是一个可运行、可验证的纵向切片，不是完整商业产品。它证明了两件事：核心体验成立，技术链路跑得通。</p>
+      </div>
+      <div class="content">
+        <div class="two-col">
+          <div>
+            <div class="section-label">已跑通</div>
+            <ul class="list">
+              <li>3 秒记录 → 加密落库 → 反思卡 → 推荐 → 呼吸/播放/书写。</li>
+              <li>33 天数据 → 周均值/曲线 → 触发因素 9/12 vs 8/21 → lift 1.83。</li>
+              <li>新增记录后实时重算；刷新后数据仍在；可一键重置。</li>
+              <li>Flutter Web 构建、6 个单测、0 analyze issue、0 console error。</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">刻意没做</div>
+            <ul class="list todo">
+              <li>开放式 AI 陪伴：合规与伦理风险高，先做反思卡。</li>
+              <li>社区：隐私定位与内容安全成本不支持。</li>
+              <li>月视图：先验证“周”是否让人看懂。</li>
+              <li>订阅支付：没有留存验证前，不优化变现。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="demo" id="demo">
+          <div>
+            <video src="assets/video/xinji-demo.mp4" poster="assets/img/home.png" autoplay muted loop playsinline controls></video>
+          </div>
+          <div class="copy">
+            <div class="section-label">12 秒演示</div>
+            <p>从首页一键记录，到洞察里的“这是怎么算的”，再到记录、反思卡。演示的是真实 Flutter 构建，不是动画稿。</p>
+            <p style="margin-top:10px"><a class="btn" href="prototype/index.html">打开可点击原型 →</a></p>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:30px">如果继续</div>
+        <div class="loop" style="grid-template-columns:repeat(3,1fr)">
+          <div><b>NEXT 01</b><span>8–12 人可用性测试：验证“3 秒是否真的 3 秒”和“证据卡是否看得懂”。</span></div>
+          <div><b>NEXT 02</b><span>接 API 同步：设备匿名登录、增量拉取、幂等写入。</span></div>
+          <div><b>NEXT 03</b><span>接 ASR + LLM：结构化抽取、反思生成、后校验与降级。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 07 REFLECTION ================= -->
+<section class="chapter" id="reflection">
+  <div class="inner">
+    <div class="chnum">07 / REFLECTION</div>
+    <div>
+      <div class="chhead">
+        <h2>最大的取舍，<br>是把“更多”换成“更完整”。</h2>
+        <p class="dek">情绪产品最容易犯的错，是用功能数量证明关心。真正难的是克制：在正确的时刻，只给一个能做到的动作。</p>
+      </div>
+      <div class="content">
+        <div class="two-col">
+          <div>
+            <div class="section-label">三个判断</div>
+            <ul class="list">
+              <li><b>先做闭环，再做智能。</b>没有可信的记录与行动，AI 只会放大噪音。</li>
+              <li><b>先做隐私，再做社交。</b>情绪记录的默认状态必须是“只有我”。</li>
+              <li><b>先做安全，再做增长。</b>危机场景没有第二次机会。</li>
+            </ul>
+          </div>
+          <div>
+            <div class="section-label">如果重来</div>
+            <ul class="list todo">
+              <li>先做 8–12 人访谈与可用性测试，再写第一行代码。</li>
+              <li>把“证据卡是否看得懂”作为第一优先级，而不是图表美观。</li>
+              <li>更早接入真实设备，验证小组件与通知对留存的影响。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:28px">
+          <p>“情绪产品的边界感，就是产品能力。知道什么时候不给建议，和知道给什么建议一样重要。”</p>
+          <span>PROJECT TAKEAWAY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div>
+    <div class="f-title">心迹 TRACE</div>
+    <div style="font-size:9px;color:var(--faint);margin-top:4px">情绪日记与自我关怀 · 个人项目 · 2026.10</div>
+    <div style="font-size:9px;color:var(--faint);margin-top:10px">
+      <a href="prototype/index.html">可点击原型</a> ·
+      <a href="xinji-case.pdf">案例 PDF</a> ·
+      <a href="xinji-onepager.pdf">一页速览</a>
+    </div>
+  </div>
+  <div class="f-meta">
+    RESEARCH / PRODUCT / INTERACTION / FLUTTER<br>
+    数据为演示与公开研究口径 · 不构成医疗建议<br>
+    源码、设计稿与工程说明可应要求提供
+  </div>
+</footer>
+
+<div class="no-print" style="max-width:var(--max);margin:0 auto;padding:0 34px 30px">
+  <div class="sources">
+    <p><b>参考</b>：中科院心理所《中国国民心理健康发展报告（2023–2024）》；新华网《情绪消费兴起，企业竞逐“心灵生意”》（2025-11）；中邮证券《心理健康服务行业深度报告》；国家网信办等《人工智能拟人化互动服务管理暂行办法》（2026-07-15 施行）；人民网“12356”心理援助热线数据（2025-12）；Daylio / How We Feel / Finch / 心岛 / Moo / Calm 公开资料与竞品拆解。</p>
+  </div>
+</div>
+
+</body>
+</html>
